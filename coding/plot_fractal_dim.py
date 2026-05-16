@@ -59,7 +59,10 @@ def ols_loglog(r: np.ndarray, mean_V: np.ndarray):
 
 
 def _draw_one_panel(ax, data: dict, lattices, *, log_scale: bool,
-                    show_fits: bool, ylabel: str):
+                    show_fits: bool, ylabel: str,
+                    marker_scale: float = 1.0):
+    ms      = 6.0 * marker_scale
+    capsize = 2.5 * marker_scale
     for lat in lattices:
         sub = data[lat]
         r  = sub["r"]
@@ -70,7 +73,7 @@ def _draw_one_panel(ax, data: dict, lattices, *, log_scale: bool,
         if show_fits:
             label += f"   slope = {slope:.3f}"
         ax.errorbar(r, mV, yerr=se,
-                    fmt="o", markersize=6, capsize=2.5,
+                    fmt="o", markersize=ms, capsize=capsize,
                     color=LATTICE_COLOR[lat], ecolor=LATTICE_COLOR[lat],
                     label=label, zorder=3)
         if show_fits:
@@ -112,13 +115,21 @@ def plot_universality(data: dict, meta: dict) -> Path:
     return out
 
 
-def plot_running_example(data: dict, meta: dict, lattice: str = "square") -> Path:
+def plot_running_example(data: dict, meta: dict, lattice: str = "square",
+                         *, log_marker_scale: float = 1.0,
+                         filename: str = "fig_running_example.png") -> Path:
+    """Right panel (log–log) marker size scaled by `log_marker_scale`.
+
+    The small-dots variant (scale = 1/3) is intended to illustrate the
+    "big dots make linear plots look more linear" pedagogical point in §3.
+    """
     fig, axes = plt.subplots(1, 2, figsize=(12.5, 5.4))
     ylab = r"$\overline{V}(r)$"
     _draw_one_panel(axes[0], data, [lattice],
                     log_scale=False, show_fits=False, ylabel=ylab)
     _draw_one_panel(axes[1], data, [lattice],
-                    log_scale=True, show_fits=True, ylabel=ylab)
+                    log_scale=True, show_fits=True, ylabel=ylab,
+                    marker_scale=log_marker_scale)
     fig.suptitle(
         f"{LATTICE_LABEL[lattice]} — cluster volume vs. box size at $p_c$"
         f"   (asymptotic theory: $d_f \\approx {DF_THEORY:.4f}$)",
@@ -127,7 +138,7 @@ def plot_running_example(data: dict, meta: dict, lattice: str = "square") -> Pat
     fig.tight_layout(rect=(0, 0.06, 1, 0.95))
     footer(fig, sim_footer_text(meta), y=0.015)
 
-    out = IMG_DIR / "fig_running_example.png"
+    out = IMG_DIR / filename
     fig.savefig(out, dpi=160)
     plt.close(fig)
     return out
@@ -140,6 +151,8 @@ def main():
     meta = load_meta()
     print(f"  wrote {plot_universality(data, meta)}")
     print(f"  wrote {plot_running_example(data, meta, lattice='square')}")
+    # Small-dots variant for the "big dots ⇒ deceptively-linear" point in §3.
+    print(f"  wrote {plot_running_example(data, meta, lattice='square', log_marker_scale=1/3, filename='fig_running_example_small_dots.png')}")
 
 
 if __name__ == "__main__":

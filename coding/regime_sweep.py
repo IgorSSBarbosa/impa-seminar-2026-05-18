@@ -47,7 +47,7 @@ REGIMES = [
     ("alpha=1/2",  lambda m: m // 2),
 ]
 
-NM_GRID = [(32, 3), (64, 4), (128, 5), (256, 6), (512, 7)]
+NM_GRID = [(32, 3), (64, 4), (128, 5), (256, 6), (512, 7), (1024, 8)]
 
 # L3: each cell wants this many disjoint L2 replicas. R is the *target*; we
 # fall back to floor(n_total / n) if the pool is too small (with a warning).
@@ -139,7 +139,11 @@ def main():
                         "scales_used": r["scales_used"]})
     print(f"wrote {csv_path}")
 
-    # ── plot: mean ± std vs n, one curve per regime ──────────────────────────
+    # ── plot: mean_slope ± SE vs n, one curve per regime ─────────────────────
+    # Bars are SE = std/sqrt(log_logPlot_trials): they answer "how well do
+    # we know the mean d_f estimate?" rather than "how scattered is one
+    # L2 replica?" The latter (intrinsic per-replica spread) is shown as a
+    # faint translucent band behind the SE bars.
     fig, ax = plt.subplots(figsize=(9.6, 5.8))
     for label, _ in REGIMES:
         color = REGIME_COLORS[label]
@@ -147,13 +151,18 @@ def main():
         if not sub:
             continue
         sub.sort(key=lambda r: r["n"])
-        ns    = np.array([r["n"]          for r in sub])
-        ms    = np.array([r["m"]          for r in sub])
-        m0s   = np.array([r["m_0"]        for r in sub])
-        means = np.array([r["mean_slope"] for r in sub])
-        stds  = np.array([r["std"]        for r in sub])
-        ax.errorbar(ns, means, yerr=stds, fmt="o-", capsize=3,
-                    color=color, lw=1.5, label=label)
+        ns    = np.array([r["n"]                  for r in sub])
+        ms    = np.array([r["m"]                  for r in sub])
+        m0s   = np.array([r["m_0"]                for r in sub])
+        means = np.array([r["mean_slope"]         for r in sub])
+        stds  = np.array([r["std"]                for r in sub])
+        Rs    = np.array([r["log_logPlot_trials"] for r in sub])
+        ses   = stds / np.sqrt(Rs)
+        # faint per-replica spread (std) as a band
+        ax.fill_between(ns, means - stds, means + stds,
+                        color=color, alpha=0.08, zorder=1)
+        ax.errorbar(ns, means, yerr=ses, fmt="o-", capsize=3,
+                    color=color, lw=1.5, label=label, zorder=3)
         for x, y, mi, m0i in zip(ns, means, ms, m0s):
             ax.annotate(f"m={mi},m$_0$={m0i}", (x, y),
                         xytext=(0, 9), textcoords="offset points",
@@ -164,8 +173,9 @@ def main():
     ax.set_xscale("log")
     ax.set_xlabel(r"trials per replica  $n$  (geometric)")
     ax.set_ylabel(r"$\hat d_f$")
-    ax.set_title(rf"Regime sweep   (square, $N={meta['N']}$, "
-                 rf"pool $={n_total}$, $\tau\approx{sec_per_trial:.3f}$ s/trial)")
+    ax.set_title(rf"Regime sweep — $\hat d_f \pm$ SE (band: $\pm$ std)   "
+                 rf"(square, $N={meta['N']}$, pool $={n_total}$, "
+                 rf"$\tau\approx{sec_per_trial:.3f}$ s/trial)")
     apply_grid(ax, log=True)
     ax.legend(loc="lower right", fontsize=9)
 

@@ -1,9 +1,12 @@
 #!/bin/bash
-# Overnight scale-of-scales sweep.
-# Generates a big pool (clipped-BFS, arena 2049, scales up to r=1024, 5000
-# trials) then runs the regime sweep and error-vs-time analyses.
-# Wall clock with --method bfs: ~4 min for the pool (vs ~70 min on the old
-# union-find path). See coding/bench_l0.py for the L0 benchmark.
+# Overnight scale-of-scales sweep (Plan B, 2026-05-16).
+# Generates a Plan-B pool (clipped-BFS, arena 4097, scales up to r=2048,
+# 65 536 trials) then runs the regime sweep and error-vs-time analyses.
+# Wall clock with --method bfs: ~45-60 min for the pool (vs many hours
+# on the old union-find path). See coding/bench_l0.py for the L0 benchmark.
+#
+# Pool size 65 536 = 64 × 1024 so the n=1024 cell still gets 64 disjoint
+# L2 replicas (LOG_LOGPLOT_TRIALS in regime_sweep.py).
 
 set -euo pipefail
 
@@ -15,10 +18,10 @@ mkdir -p "${DATA_DIR}"
 LOG="${PRES}/overnight.log"
 echo "===== overnight run started $(date) =====" | tee "${LOG}"
 
-echo "[1/3] pool simulation: --method bfs, 5000 trials, scales=2..1024" | tee -a "${LOG}"
+echo "[1/3] pool simulation: --method bfs, 65536 trials, scales=2..2048" | tee -a "${LOG}"
 python3 -u "${HERE}/simulators/fractal_dim_pool_sim.py" \
-    --method bfs --trials 5000 \
-    --scales 2 4 8 16 32 64 128 256 512 1024 \
+    --method bfs --trials 65536 \
+    --scales 2 4 8 16 32 64 128 256 512 1024 2048 \
     --seed 20260518 \
     --out "${DATA_DIR}/fractal_dim_pool.npz" 2>&1 | tee -a "${LOG}"
 

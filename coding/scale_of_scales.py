@@ -37,7 +37,7 @@ POOL = DATA_DIR / "fractal_dim_pool.npz"
 
 M0 = 1                                     # drop the smallest scale (constant)
 # (n, m) pairs: n geometric, m linear  →  m/n → 0
-NM_GRID = [(64, 4), (128, 5), (256, 6), (512, 7)]
+NM_GRID = [(64, 4), (128, 5), (256, 6), (512, 7), (1024, 8)]
 R_MIN_REPLICAS = 3
 
 
