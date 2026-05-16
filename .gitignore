@@ -1,0 +1,38 @@
+# ── Reproducible artifacts ─────────────────────────────────────────────────
+# Everything below is regenerable from the source scripts at a fixed seed +
+# config; no need to version-control it. See coding/run_overnight.sh for
+# the canonical reproduction recipe.
+
+# Generated figures and animations
+images/
+
+# Generated simulation data (CSVs, NPZ pools, sidecar JSON metadata)
+simulation_data/
+
+# Run logs
+*.log
+
+# ── Python caches ─────────────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*.egg-info/
+.ipynb_checkpoints/
+
+# ── Editor / OS junk ──────────────────────────────────────────────────────
+.vscode/
+.idea/
+.DS_Store
+*.swp
+
+# ── LaTeX build artifacts (for the Beamer deck, once it lands) ────────────
+*.aux
+*.fdb_latexmk
+*.fls
+*.synctex.gz
+*.toc
+*.nav
+*.snm
+*.out
+*.bbl
+*.blg
+*.log
