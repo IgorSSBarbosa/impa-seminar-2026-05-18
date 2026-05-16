@@ -297,20 +297,43 @@
         Insert image: \texttt{fig\_running\_example.png}.}
 \end{frame}
 
-\begin{frame}{Why log--log linearises a power law}
-  Heuristic:
-  \begin{align*}
-    \E V(r) &\sim r^{d_f} \\
-    \log \E V(r) &\approx d_f \log r + \mathrm{const}.
-  \end{align*}
+\begin{frame}{Why log--log linearises a power law (\& finite-size effects)}
+  \scriptsize
+  Heuristic: $\E V(r) \sim r^{d_f} \;\Rightarrow\;
+  \log \E V(r) \approx d_f \log r + \mathrm{const.}$
+  Physicists ``read the slope''. But the relation is only
+  \emph{asymptotic} --- at small $r$ there are corrections.
 
-  \TODO{Physicists ``read the slope''. Display
-        \texttt{fig\_running\_example.png}.}
+  \vspace{-0.3em}
+  \begin{center}
+    \includegraphics[height=0.36\textheight, keepaspectratio]%
+                    {fig_running_example.png}\\[-0.2em]
+    \includegraphics[height=0.36\textheight, keepaspectratio]%
+                    {fig_running_example_small_dots.png}
+  \end{center}
+
+  \vspace{-0.5em}
+  \TODO{Top: big markers --- looks dead-straight, slope reads cleanly.
+        Bottom: same data, $1/3$-size markers --- now the small-$r$
+        points clearly peel off the line. Finite-size effect: the
+        cluster at small $r$ has not yet developed its asymptotic
+        scaling; boundary / surface corrections dominate. Formally
+        captured by the $a_1\, r^{-1}$ correction term in the
+        expansion of §3, and the reason the log--log estimator throws
+        away the first $m_0$ scales.}
 \end{frame}
 
 \begin{frame}{Universality across lattices}
-  \TODO{same $d_f$, three lattices, parallel lines.
-        Embed \texttt{fig\_universality.png}.}
+  \begin{center}
+    \includegraphics[width=\linewidth, keepaspectratio]%
+                    {fig_universality.png}
+  \end{center}
+
+  \TODO{Three lattices, same slope --- the fractal dimension $d_f$ is
+        a \emph{universal} quantity. What is non-universal is the
+        prefactor (the intercept on the log--log panel), which
+        depends on lattice geometry. The whole talk is about how to
+        measure this universal slope rigorously.}
 \end{frame}
 
 \demoframe{GIF}{run - \texttt{percolation\_meanfield.gif}}
