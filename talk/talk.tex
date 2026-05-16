@@ -147,15 +147,15 @@
   \note{%
     Broadbent \& Hammersley (1957)~\cite{broadbentHammersley1957}
     wanted to model a gas mask: a porous carbon granule with random
-    defects. They threw away \emph{everything} physical except one
-    number --- the density $p$ of \emph{open} sites.\par\smallskip
+    defects. They threw away \textbf{everything} physical except one
+    number --- the density $p$ of \textbf{open} sites.\par\smallskip
     %
     No particle interactions. No movement. No gravity. No chemistry.
     Just: each site is open with probability $p$, independently; a
     ``fluid'' percolates iff the open cluster of the source reaches
     the surface.\par\smallskip
     %
-    Caricature of a physical system $\Rightarrow$ surprisingly rich
+    A caricature of a physical system, yet surprisingly rich
     mathematics.%
   }
 \end{frame}
@@ -176,7 +176,7 @@
   value, power-law behaviour at the threshold.
   \vspace{0.6em}
 
-  \TODO{Verbal: \emph{the same drama plays out in many
+  \TODO{Verbal: \textbf{the same drama plays out in many
         statistical-mechanics models. We restrict ourselves to
         percolation today, but the wider problem is to do statistics
         on any of these.}
@@ -197,7 +197,7 @@
         \textbf{(2) 3/4/6-connected.} Same recipe, different
         neighbourhoods: honeycomb ($z=3$), square ($z=4$), triangular
         ($z=6$). Coordination number $z$ controls how easy it is for
-        the cluster to grow $\Rightarrow$ different $p_c$.}
+        the cluster to grow, and hence the value of $p_c$.}
 \end{frame}
 
 \demoframe{GIF}{run - \texttt{lattices\_merged.gif}}
@@ -219,7 +219,7 @@
           (sub-critical phase).
     \item $p > p_c$: a unique infinite cluster exists almost surely
           (super-critical phase).
-    \item $p = p_c$: \emph{critical phase}. No infinite cluster, but
+    \item $p = p_c$: \textbf{critical phase}. No infinite cluster, but
           clusters of every scale --- the scale-invariant regime where
           $\E V(r) \sim r^{d_f}$ lives.
   \end{itemize}
@@ -235,9 +235,9 @@
     \end{tabular}
   \end{center}
 
-  \TODO{Higher vertex degree $\Rightarrow$ easier for the cluster to
-        grow $\Rightarrow$ lower $p_c$. Triangular $p_c = 1/2$ is
-        \emph{exact} (Sykes--Essam duality); square is only known
+  \TODO{Higher vertex degree means it is easier for the cluster to
+        grow, and so $p_c$ is lower. Triangular $p_c = 1/2$ is
+        \textbf{exact} (Sykes--Essam duality); square is only known
         numerically. See~\cite{grimmett1999percolation}.}
 \end{frame}
 
@@ -257,11 +257,11 @@
       \textbf{Scaling rel.} \\
     \midrule
     \rowcolor{InvisibleBlue}
-    $\boldsymbol\Rightarrow$ & Cluster volume at $p_c$           & $V(r)$        & $\E V(r) \sim r^{d_f}$                                                  & $d_f$            & $d_f = d/(\tau - 1)$ \\
+    $\blacktriangleright$ & Cluster volume at $p_c$           & $V(r)$        & $\E V(r) \sim r^{d_f}$                                                  & $d_f$            & $d_f = d/(\tau - 1)$ \\
     & Cluster number density           & $n(s,p)$      & $n(s,p) \sim s^{-\tau}\, f\!\big(s\,|p-p_c|^{1/\sigma}\big)$             & $(\tau, \sigma)$ & --- \\
     & Percolation probability          & $\theta(p)$   & $\theta(p) \sim (p-p_c)^{\beta}$                                         & $\beta$          & $\beta = (\tau - 2)/\sigma$ \\
     \rowcolor{InvisibleBlue}
-    $\boldsymbol\Rightarrow$ & Mean cluster size                & $\chi^f(p)$   & $\chi^f(p) \sim |p-p_c|^{-\gamma}$                                       & $\gamma$         & $\gamma = (3 - \tau)/\sigma$ \\
+    $\blacktriangleright$ & Mean cluster size                & $\chi^f(p)$   & $\chi^f(p) \sim |p-p_c|^{-\gamma}$                                       & $\gamma$         & $\gamma = (3 - \tau)/\sigma$ \\
     & Number of clusters per vertex    & $\kappa(p)$   & $\kappa(p) \sim |p-p_c|^{2-\alpha}$                                      & $\alpha$         & $\alpha = 2 - (\tau-1)/\sigma$ \\
     & Cluster moments                  & $\chi_k^f(p)$ & $\chi_{k+1}^f(p)/\chi_k^f(p) \sim |p-p_c|^{-\Delta}$                     & $\Delta$         & $\Delta = 1/\sigma = \gamma + \beta$ \\
     \bottomrule
@@ -275,7 +275,7 @@
         on the two highlighted rows: the on-critical cluster volume
         (the running example, exponent $d_f$) and, off-critical, the
         mean cluster size (exponent $\gamma$). They are the easiest
-        case: \emph{positive} exponents of the $r^\beta$ family with
+        case: \textbf{positive} exponents of the $r^\beta$ family with
         $\beta > 0$. The same statistical machinery lifts to the rest
         with extra work. Hyperscaling $d_f = d/(\tau-1)$ to be
         verified before the talk. Source: Stauffer 1979
@@ -302,7 +302,7 @@
   Heuristic: $\E V(r) \sim r^{d_f} \;\Rightarrow\;
   \log \E V(r) \approx d_f \log r + \mathrm{const.}$
   Physicists ``read the slope''. But the relation is only
-  \emph{asymptotic} --- at small $r$ there are corrections.
+  \textbf{asymptotic} --- at small $r$ there are corrections.
 
   \vspace{-0.3em}
   \begin{center}
@@ -330,7 +330,7 @@
   \end{center}
 
   \TODO{Three lattices, same slope --- the fractal dimension $d_f$ is
-        a \emph{universal} quantity. What is non-universal is the
+        a \textbf{universal} quantity. What is non-universal is the
         prefactor (the intercept on the log--log panel), which
         depends on lattice geometry. The whole talk is about how to
         measure this universal slope rigorously.}
@@ -357,7 +357,7 @@
   \end{center}
 
   \TODO{Same image as in §2 --- familiar on purpose. The switch we make
-        \emph{now} is from a physicist's reading (``looks linear'') to
+        \textbf{now} is from a physicist's reading (``looks linear'') to
         a statistician's reading (``what is the slope, and how
         uncertain is it?''). From this point on every claim about
         $d_f$ comes with an error bar.}
@@ -379,27 +379,31 @@
     \end{column}
   \end{columns}
 
-  \vspace{0.8em}
-  \textbf{Working hypothesis.} The population mean admits a $J$-order
+  \vspace{0.6em}
+  \textbf{Working hypothesis.} The population mean admits the
   asymptotic expansion
   \[
     \E Y_i \;=\; a_0\, i^{\gamma}\,
-       \exp\!\Big(\, \sum_{j=1}^{J} a_j\, i^{-j}
-                  \;+\; \phi_J(i)\, i^{-J-1} \,\Big),
-    \qquad \phi_J \text{ bounded.}
+       \exp\!\Big(\, a_1\, i^{-1}
+                  \;+\; \phi(i)\, i^{-2} \,\Big),
+    \qquad \phi \text{ bounded.}
   \]
-  Today: $J = 1$. Identifications for our running example:
+  {\footnotesize\textbf{Remark.} This is \textbf{not} exponential decay.
+  The exponential is just a convenient way to write the multiplicative
+  correction
+  $\;\E Y_i \approx a_0\, i^{\gamma} + a_1\, i^{\gamma - 1} + \cdots\;$
+  in a form whose $\log$ is additive.}
+
+  \vspace{0.4em}
+  Identifications for our running example:
   $Y_i \leftrightarrow V(r)$ with $i = r$, $\gamma \leftrightarrow d_f$.
 
   \TODO{$a_0$ is a lattice-dependent amplitude (the intercept on the
-        log--log panel). $a_1, a_2, \ldots$ are finite-size correction
-        coefficients --- they encode boundary / discreteness effects.
-        $\phi_J$ is the remainder, assumed only \emph{bounded}.
-        $J$ controls how many correction terms we keep. $J = 1$ is
-        already enough for the running example because the first
-        correction $a_1/i$ dominates and the rest is geometric in $i$.
-        General $J$ is in the paper~\cite{bigCluster} but does not
-        change the structure of the talk.}
+        log--log panel). $a_1$ is the leading finite-size correction
+        coefficient --- encodes boundary / discreteness effects.
+        $\phi$ is the remainder, assumed only \textbf{bounded}.
+        Higher-order corrections sit inside $\phi$ and decay one power
+        of $i$ faster than $a_1/i$.}
 \end{frame}
 
 \begin{frame}{Bias--variance trade-off}
@@ -407,17 +411,17 @@
     \begin{column}{0.48\textwidth}
       \begin{alertblock}{Small $r$  (cheap)}
         $\checkmark$ many trials affordable in a fixed compute budget
-        $\Rightarrow$ \emph{low variance} of $\overline V(r)$.\\[0.4em]
-        $\times$ finite-size correction $a_1 / r$ is large
-        $\Rightarrow$ \emph{high bias}.
+        --- \textbf{low variance} of $\overline V(r)$.\\[0.4em]
+        $\times$ finite-size correction $a_1 / r$ is large ---
+        \textbf{high bias}.
       \end{alertblock}
     \end{column}
     \begin{column}{0.48\textwidth}
       \begin{exampleblock}{Large $r$  (expensive)}
-        $\checkmark$ asymptotic regime: $a_1 / r \to 0$
-        $\Rightarrow$ \emph{low bias}.\\[0.4em]
+        $\checkmark$ asymptotic regime: $a_1 / r \to 0$ ---
+        \textbf{low bias}.\\[0.4em]
         $\times$ each trial costs more time, fewer trials fit in the
-        budget $\Rightarrow$ \emph{high variance}.
+        budget --- \textbf{high variance}.
       \end{exampleblock}
     \end{column}
   \end{columns}
@@ -425,45 +429,45 @@
   \vspace{0.8em}
   \begin{center}
     \large
-    $\Rightarrow$ Choosing \emph{which scales to use} is a
+    Choosing which scales to use should be a
     statistical decision, not an aesthetic one.
   \end{center}
 
   \TODO{This is what the rest of the talk is about. The estimator we
         will define drops the first $m_0$ scales (kills bias) and
         averages over an OLS window of width $m$ (controls variance).
-        The whole point of §6 is: \emph{how should $m_0$ scale with
+        The whole point of §6 is: \textbf{how should $m_0$ scale with
         $m$ and with the compute budget?} That is the practical knob.}
 \end{frame}
 
 \begin{frame}{Chalkboard: log--log linearisation}
-  Take $\log$ of the $J = 1$ expansion and substitute $i = \rho^k$:
+  Take $\log$ of the expansion above and substitute $i = \rho^k$:
   \[
     \log \E Y_{\rho^k} \;=\;
       \underbrace{\log a_0 \;+\; k\, \gamma \log \rho}_{\text{signal (linear in }k\text{)}}
       \;+\;
-      \underbrace{a_1\, \rho^{-k} \;+\; \phi_1(\rho^k)\, \rho^{-2k}}_{\text{finite-size correction (geometric in }k\text{)}}.
+      \underbrace{a_1\, \rho^{-k} \;+\; \phi(\rho^k)\, \rho^{-2k}}_{\text{finite-size correction (geometric in }k\text{)}}.
   \]
 
   \vspace{0.4em}
   \begin{itemize}
-    \item In the variable $k$ (not $r$!), the leading term is
-          \emph{linear} with slope $\gamma \log \rho$.
-    \item The correction decays \emph{geometrically} in $k$ (since
+    \item In the variable $k$, the leading term is linear with slope
+          $\gamma \log \rho$.
+    \item The correction decays \textbf{geometrically} in $k$ (since
           $\rho > 1$): after a few scales it is statistical noise, not
           signal.
-    \item $\Rightarrow$ OLS slope of $\log \overline Y_{\rho^k}$ on $k$
-          is a natural estimator of $\gamma \log \rho$, hence of
+    \item Therefore the OLS slope of $\log \overline Y_{\rho^k}$ on
+          $k$ is a natural estimator of $\gamma \log \rho$, hence of
           $\gamma$.
   \end{itemize}
 
   \TODO{Board steps:
-        (1) Start from $\E Y_i = a_0\, i^{\gamma}\, \exp(a_1/i + \phi_1(i)/i^2)$.
-        (2) Take log: $\log \E Y_i = \log a_0 + \gamma \log i + a_1/i + \phi_1(i)/i^2$.
+        (1) Start from $\E Y_i = a_0\, i^{\gamma}\, \exp(a_1/i + \phi(i)/i^2)$.
+        (2) Take log: $\log \E Y_i = \log a_0 + \gamma \log i + a_1/i + \phi(i)/i^2$.
         (3) Substitute $i = \rho^k$: $\log i = k \log \rho$, $1/i = \rho^{-k}$.
         (4) Box the result. Highlight that the geometric grid
         $\rho^k$ is what makes the correction decay
-        \emph{exponentially fast} in $k$ --- the whole reason for
+        \textbf{exponentially fast} in $k$ --- the whole reason for
         using a geometric scale schedule.}
 \end{frame}
 
@@ -502,7 +506,7 @@
 \begin{frame}{Main theorem}
   \TODO{Under $(2+\delta)$-moment, bounded $\phi_j$, and variance
         convergence:
-        $\sqrt{n m^3}\,(\hat\gamma - \gamma)\;\Rightarrow\;
+        $\sqrt{n m^3}\,(\hat\gamma - \gamma)\;\xrightarrow{\;d\;}\;
         \mathcal N\!\Big(0,\, \tfrac{12\sigma_\infty^2}{\log^2\rho}\Big).$
         Rate $\sqrt{nm^3}$ combines $n$ trials and $m$ scales.}
 \end{frame}
@@ -635,8 +639,8 @@
 \appendix
 
 \begin{frame}{Appendix: pool simulation pipeline (L0--L4)}
-  \TODO{One-pager on the hierarchical simulation structure (L0 trial
-        $\to$ L1 mean $\to$ L2 slope $\to$ L3 replicas $\to$ L4 budget).
+  \TODO{One-pager on the hierarchical simulation structure: L0 trial,
+        L1 mean, L2 slope, L3 replicas, L4 budget.
         Reference \texttt{notes/simulation\_hierarchy.md}.}
 \end{frame}
 
