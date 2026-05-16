@@ -55,17 +55,23 @@ _p.add_argument("--scales", type=int, nargs="+",
 _p.add_argument("--seed", type=int, default=20260518)
 _p.add_argument("--lattice", choices=["square", "hexagonal", "triangular"],
                 default="square")
+_p.add_argument("--batch-size", type=int, default=2048,
+                help="Trials per checkpoint flush (default 2048). After each "
+                     "batch the partial pool is written to a .ckpt.npz; on "
+                     "restart the simulator picks up from there.")
 _p.add_argument("--out", type=Path,
                 default=Path(__file__).resolve().parents[2]
                         / "simulation_data" / "fractal_dim_pool.npz")
 args = _p.parse_args()
 
-METHOD   = args.method
-N_TRIALS = args.trials
-SCALES   = np.array(sorted(args.scales), dtype=np.int32)
-SEED     = args.seed
-LATTICE  = args.lattice
-OUT_PATH = args.out
+METHOD     = args.method
+N_TRIALS   = args.trials
+SCALES     = np.array(sorted(args.scales), dtype=np.int32)
+SEED       = args.seed
+LATTICE    = args.lattice
+BATCH_SIZE = max(1, args.batch_size)
+OUT_PATH   = args.out
+CKPT_PATH  = OUT_PATH.with_suffix(".ckpt.npz")
 
 R_MAX = int(SCALES.max())
 
@@ -311,6 +317,55 @@ def warmup():
 
 # ─── Main ────────────────────────────────────────────────────────────────────
 
+def _fingerprint():
+    """Identify a run: anything in here must match a checkpoint to reuse it."""
+    return {
+        "method":   METHOD,
+        "lattice":  LATTICE,
+        "N":        int(N),
+        "scales":   [int(s) for s in SCALES],
+        "seed":     int(SEED),
+        "trials":   int(N_TRIALS),
+        "batch":    int(BATCH_SIZE),
+    }
+
+
+def _try_resume():
+    """Return (V_pool, n_done, elapsed_so_far) — fresh state if no usable ckpt."""
+    V_pool = np.zeros((N_TRIALS, len(SCALES)), dtype=np.int64)
+    if not CKPT_PATH.exists():
+        return V_pool, 0, 0.0
+    try:
+        ck = np.load(CKPT_PATH, allow_pickle=False)
+        fp_saved = json.loads(str(ck["fingerprint"]))
+        if fp_saved != _fingerprint():
+            print(f"  checkpoint at {CKPT_PATH} has different parameters "
+                  f"— ignoring and starting fresh.")
+            return V_pool, 0, 0.0
+        n_done = int(ck["n_done"])
+        V_pool[:n_done] = ck["V_pool"][:n_done]
+        elapsed = float(ck["elapsed_seconds"])
+        print(f"  resuming from checkpoint: {n_done}/{N_TRIALS} trials "
+              f"already done ({elapsed:.1f}s of prior compute).")
+        return V_pool, n_done, elapsed
+    except Exception as e:
+        print(f"  could not read checkpoint ({e}); starting fresh.")
+        return V_pool, 0, 0.0
+
+
+def _write_checkpoint(V_pool, n_done, elapsed):
+    """Atomic-ish: write to tmp, rename. Avoids half-written .npz on Ctrl-C."""
+    tmp = CKPT_PATH.with_suffix(".ckpt.tmp.npz")
+    np.savez(
+        tmp,
+        V_pool=V_pool[:n_done],
+        n_done=np.int64(n_done),
+        elapsed_seconds=np.float64(elapsed),
+        fingerprint=np.array(json.dumps(_fingerprint())),
+    )
+    tmp.replace(CKPT_PATH)
+
+
 def main():
     print(f"\nPool simulation")
     print(f"  method       : {METHOD}")
@@ -320,34 +375,56 @@ def main():
     print(f"  scales       : {list(SCALES)}")
     print(f"  p_c          : {P_C}")
     print(f"  seed         : {SEED}")
-    print(f"  out          : {OUT_PATH}\n")
+    print(f"  batch_size   : {BATCH_SIZE}")
+    print(f"  out          : {OUT_PATH}")
+    print(f"  ckpt         : {CKPT_PATH}\n")
 
     print("Compiling Numba kernels...", end=" ", flush=True)
     warmup()
     print("done.")
 
+    OUT_PATH.parent.mkdir(parents=True, exist_ok=True)
+
     trial = make_trial_fn(METHOD, LATTICE, N, SCALES)
-    rng = np.random.default_rng(SEED)
-    V_pool = np.zeros((N_TRIALS, len(SCALES)), dtype=np.int64)
+    V_pool, n_done, prior_elapsed = _try_resume()
+
+    # One batch = one independent sub-RNG, spawned deterministically from SEED.
+    # Resuming skips already-done batches but reuses the same spawn list, so
+    # each batch's randomness is reproducible regardless of where we restart.
+    n_batches = (N_TRIALS + BATCH_SIZE - 1) // BATCH_SIZE
+    batch_seeds = np.random.SeedSequence(SEED).spawn(n_batches)
+
+    # Reusable U buffer — avoid allocating ~N*N*4 bytes per trial.
+    U = np.empty((N, N), dtype=np.float32)
 
     t0 = time.perf_counter()
-    for t in range(N_TRIALS):
-        U = rng.random((N, N), dtype=np.float32)
-        V_pool[t] = trial(U)
+    for b in range(n_batches):
+        b_lo = b * BATCH_SIZE
+        b_hi = min(b_lo + BATCH_SIZE, N_TRIALS)
+        if b_hi <= n_done:
+            continue                          # batch already covered by ckpt
+        rng_b = np.random.default_rng(batch_seeds[b])
+        # If we resume in the middle of a batch, redo the whole batch — the
+        # RNG is per-batch so re-running is deterministic and the previously
+        # saved trials in this batch get correctly overwritten.
+        for t in range(b_lo, b_hi):
+            rng_b.random(out=U, dtype=np.float32)
+            V_pool[t] = trial(U)
+        n_done = b_hi
 
-        if (t + 1) % max(N_TRIALS // 20, 1) == 0 or (t + 1) == N_TRIALS:
-            elapsed = time.perf_counter() - t0
-            eta = elapsed * (N_TRIALS - (t + 1)) / max(t + 1, 1)
-            sys.stdout.write(
-                f"\r  trial {t+1:5d}/{N_TRIALS}  "
-                f"elapsed={elapsed:7.1f}s  eta={eta:7.1f}s"
-            )
-            sys.stdout.flush()
+        elapsed = prior_elapsed + (time.perf_counter() - t0)
+        _write_checkpoint(V_pool, n_done, elapsed)
+
+        eta = elapsed * (N_TRIALS - n_done) / max(n_done, 1)
+        sys.stdout.write(
+            f"\r  batch {b+1:3d}/{n_batches}  trial {n_done:5d}/{N_TRIALS}  "
+            f"elapsed={elapsed:7.1f}s  eta={eta:7.1f}s"
+        )
+        sys.stdout.flush()
     print()
 
-    total_elapsed = time.perf_counter() - t0
+    total_elapsed = prior_elapsed + (time.perf_counter() - t0)
 
-    OUT_PATH.parent.mkdir(parents=True, exist_ok=True)
     np.savez_compressed(
         OUT_PATH,
         V_pool=V_pool,
@@ -366,9 +443,16 @@ def main():
     meta_path.write_text(json.dumps({
         "method": METHOD, "lattice": LATTICE, "N": N, "n_trials": N_TRIALS,
         "scales": [int(s) for s in SCALES], "seed": SEED, "p_c": P_C,
+        "batch_size": BATCH_SIZE,
         "elapsed_seconds": round(total_elapsed, 2),
     }, indent=2))
     print(f"  wrote {meta_path}")
+
+    try:
+        CKPT_PATH.unlink()
+        print(f"  removed checkpoint {CKPT_PATH}")
+    except FileNotFoundError:
+        pass
 
 
 if __name__ == "__main__":
