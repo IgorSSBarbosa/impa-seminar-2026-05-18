@@ -43,6 +43,7 @@
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
 \usepackage{amsmath, amssymb, amsthm, mathtools}
+\usepackage{bbm}
 \usepackage{graphicx}
 \usepackage{xcolor}
 \usepackage{tikz}
@@ -361,6 +362,13 @@
         a statistician's reading (``what is the slope, and how
         uncertain is it?''). From this point on every claim about
         $d_f$ comes with an error bar.}
+
+  \vspace{0.3em}
+  {\footnotesize\textbf{Remark.} The first few points on the left bend
+  away from the line --- those are the small scales where finite-size
+  corrections dominate. A natural fix is to \textbf{ignore the first
+  $m_0$ scales} and fit the OLS line on the remaining $m$ points; the
+  parameter $m_0$ becomes the main design knob (§6).}
 \end{frame}
 
 \begin{frame}{What physicists measure vs.\ what they want}
@@ -597,16 +605,29 @@
 
 \begin{frame}{Main theorem}
   \textbf{Setting.} $Y^{(1)}_i, \ldots, Y^{(n)}_i$ i.i.d.\ replicas of
-  $Y_i$ with $\E Y_i = a_0 i^\gamma \exp(a_1/i + \phi(i)/i^2)$,
-  $\phi$ bounded. Scales $i = \rho^k$, $k = m_0+1, \ldots, m_0+m$.
-  Let $\sigma_k^2 = \Var(\log \overline Y_{\rho^k})$ and assume
-  $n m^3 \sum_k w_{k,m}^2\, \sigma_k^2 \to \sigma_\infty^2$.
+  $Y_i$ along the geometric grid $i = \rho^k$,
+  $k = m_0+1, \ldots, m_0+m$; $\hat\beta$ is the OLS slope of §4 and
+  $\hat\gamma = \hat\beta/\log\rho$.
 
-  \vspace{0.4em}
-  \begin{block}{Theorem (CLT for the log--log estimator)}
-    Assume the $(2+\delta)$-moment Lyapunov condition holds for the
-    weighted array. If $n, m \to \infty$ with $\rho^{m_0} \gg
-    m\sqrt{m/n}$, then
+  \vspace{0.3em}
+  \textbf{Assumptions.}
+  \begin{itemize}
+    \item[(A1)] $\E Y_i = a_0\, i^{\gamma}
+                \exp\!\bigl(a_1\, i^{-1} + \phi(i)\, i^{-2}\bigr)$
+                with $\phi$ bounded.
+    \item[(A2)] $\E |Y_i|^{2+\delta} < \infty$ uniformly in $i$
+                (some $\delta > 0$).
+    \item[(A3)] $\sigma_k^2 := \Var(\log \overline Y_{\rho^k})$
+                satisfies $n m^3 \sum_k w_{k,m}^{\,2}\, \sigma_k^2
+                \to \sigma_\infty^2 \in (0,\infty)$.
+    \item[(A4)] $n, m \to \infty$ with
+                $\rho^{-m_0} \ll \sqrt{m/n}$
+                (equivalently $\rho^{m_0} \gg \sqrt{n/m}$).
+  \end{itemize}
+
+  \vspace{0.3em}
+  \begin{block}{Theorem (Barbosa--Teixeira--Imbuzeiro de Oliveira, 2026\textsuperscript{+})}
+    Under (A1)--(A4),
     \[
       \sqrt{n\, m^{\,3}}\,\bigl(\hat\gamma - \gamma\bigr)
         \;\xrightarrow{\,d\,}\;
@@ -614,12 +635,6 @@
         \tfrac{12\,\sigma_\infty^{\,2}}{\log^{\,2}\!\rho}\,\Bigr).
     \]
   \end{block}
-
-  \vspace{0.2em}
-  {\footnotesize\textbf{Reading the rate.} $\sqrt{n}$ from $n$
-  replicas, the extra $\sqrt{m^{3}}$ from $\sum w_{k,m}^2 \asymp
-  1/m^3$ (last slide of §4) --- using more scales \emph{accelerates}
-  the CLT.}
 \end{frame}
 
 \begin{frame}{Proof strategy}
@@ -637,23 +652,23 @@
   Multiply by $\sqrt{n\, m^{\,3}}$ and treat each piece:
   \begin{itemize}
     \item $\sqrt{n m^3}\, S_{n,m}\;\xrightarrow{\,d\,}\;\mathcal N(0,
-          12\sigma_\infty^2)$ \hfill (Lindeberg--Feller)
+          12\sigma_\infty^2)$ \quad (Lindeberg--Feller)
     \item $\sqrt{n m^3}\, Q_{n,m}\;\xrightarrow{\,p\,}\; 0$
-          \hfill (good event $+$ moment bound)
+          \quad (good event $+$ moment bound)
     \item $\sqrt{n m^3}\, R(m,m_0)\;\to\; 0$
-          \hfill (deterministic, controlled by $m_0$)
+          \quad (deterministic, controlled by $m_0$)
   \end{itemize}
 
   \vspace{0.4em}
   Divide by $\log\rho$ ($\hat\gamma = \hat\beta/\log\rho$): variance
-  becomes $12\sigma_\infty^2/\log^2\rho$. \qed (modulo three lemmas.)
+  becomes $12\sigma_\infty^2/\log^2\rho$.
 \end{frame}
 
 \begin{frame}{$S_{n,m}$ via Lindeberg--Feller}
   $S_{n,m}$ is the OLS slope applied to the centred stochastic part:
   \[
     S_{n,m} \;=\; \sum_{k = m_0+1}^{m_0+m} w_{k,m}\,
-        \bigl(\overline{\xi}_k - \E\overline{\xi}_k\bigr),
+        \bigl(\overline{\xi}_k - 1\bigr),
     \qquad
     \overline{\xi}_k = \overline Y_{\rho^k}/\E Y_{\rho^k} - 1.
   \]
@@ -672,54 +687,60 @@
   \vspace{0.2em}
   \textbf{Lyapunov $(2+\delta)$-condition.} Under bounded
   $(2+\delta)$-th moments of $\xi_k$,
-  $\sum_k |w_{k,m}|^{2+\delta} / (\sum_k w_{k,m}^2)^{1+\delta/2}\to 0$
-  --- the weights are not concentrated on a few $k$'s. Lindeberg--Feller
-  gives the CLT.
+  we can show
+  \[
+    \frac{1}{s_{n,m}^{\,2+\delta}}\sum_{k=m_0+1}^{m}
+          \E\!\left[\bigl|w_{k,m}(\bar{\xi}_{k}-1)\bigr|^{2+\delta}\right]
+    \;\xrightarrow[m,n\to\infty]{}\; 0.
+  \]
+  Lindeberg--Feller gives the CLT.
 \end{frame}
 
 \begin{frame}{$Q_{n,m}$ Taylor remainder vanishes faster}
   From §4, Step 2: on the \textbf{good event}
-  $G_k = \{|\overline{\xi}_k| \le 1/2\}$,
-  $\;\log(1 + \overline{\xi}_k) - \overline{\xi}_k\;$ is bounded by
-  $\overline{\xi}_k^{\,2}$. So
+  $\mathcal{G}_k = \{\overline{\xi}_k \ge 1/2\}$,
+  $\;q(\overline{\xi}_k - 1) = \log(\overline{\xi}_k) - \overline{\xi}_k + 1\;$
+  is bounded by $(\overline{\xi}_k - 1)^{\,2}$. So
   \[
-    |Q_{n,m}| \;\le\; \sum_k |w_{k,m}|\, \overline{\xi}_k^{\,2}
+    |Q_{n,m}| \;\le\; \sum_k |w_{k,m}|\, (\overline{\xi}_k - 1)^{\,2}
                  \;+\; \text{bad-event term}.
   \]
 
   \vspace{0.4em}
-  \textbf{Good event.} $\E\overline{\xi}_k^{\,2} \asymp \sigma_k^2/n$,
-  so $\E|Q_{n,m}^{\text{good}}| \lesssim (1/n)\sum_k |w_{k,m}|
-  \asymp 1/(nm)$. Multiplying by $\sqrt{nm^3}$ gives $\sqrt{m/n}\to 0$.
+  \textbf{Good event.} $\E(\overline{\xi}_k - 1)^{\,2} \asymp
+  \sigma_k^2/n$, so $\E|Q_{n,m}^{\text{good}}| \lesssim
+  (1/n)\sum_k |w_{k,m}| \asymp 1/(nm)$. Multiplying by $\sqrt{nm^3}$
+  gives $\sqrt{m/n} \to 0$.
 
   \vspace{0.4em}
-  \textbf{Bad event.} $\Pr(G_k^c) \le e^{-c n}$ (Hoeffding /
-  sub-Gaussian on bounded indicator sums for cluster occupation). So
-  the bad-event contribution to $\E|Q_{n,m}|$ decays exponentially
-  in $n$ --- negligible compared to the polynomial CLT scale.
+  \textbf{Bad event.} Use union bound and Chebyshev inequality to
+  bound $\P(\mathcal{G}_k^c) \le 4\sigma_k^2/n$. Then use
+  Cauchy--Schwarz to bound $\E[Q_{n,m}\,\mathbbm{1}_{\mathcal{G}_m^c}]$.
 \end{frame}
 
 \begin{frame}{$R(m,m_0)$ finite-size bias --- the geometric scale wins}
-  $R(m,m_0)$ is the OLS slope of the \emph{deterministic} correction
-  (from the chalkboard linearisation):
+  The $R(m,m_0)$ term is \textbf{deterministic} bias from the linear
+  regression:
   \[
     R(m,m_0) \;=\; \sum_{k = m_0+1}^{m_0+m} w_{k,m}\,
         \Bigl(a_1\,\rho^{-k} + \phi(\rho^k)\,\rho^{-2k}\Bigr).
   \]
 
   \vspace{0.4em}
-  Both correction terms decay \textbf{geometrically} in $k$, and
-  $\sum_k |w_{k,m}| \asymp 1/m$. The leading $\rho^{-k}$ term, summed
-  against the symmetric weights, gives
+  Under reasonable assumptions both correction terms decay
+  \textbf{geometrically} in $k$, and $\sum_k |w_{k,m}| \asymp 1/m$.
+  The leading $\rho^{-k}$ term, summed against the symmetric weights,
+  gives
   \[
     R(m,m_0) \;\asymp\; \frac{\rho^{-m_0}}{m^2}.
   \]
 
   \vspace{0.4em}
   \textbf{Condition for negligibility:}
-  $\sqrt{nm^3}\cdot R \to 0\;\Longleftrightarrow\;
-  \rho^{m_0} \gg m\sqrt{m/n}$. This is exactly the assumption in the
-  theorem --- and the design knob $m_0$ that drives §6.
+  $\sqrt{nm^3}\cdot R(m,m_0) \to 0\;\Longleftrightarrow\;
+  \rho^{-m_0} \ll \sqrt{m/n}$ (equivalently
+  $\rho^{m_0} \gg \sqrt{n/m}$). This is exactly assumption (A4) --- and
+  the design knob $m_0$ that drives §6.
 \end{frame}
 
 % =====================================================================
