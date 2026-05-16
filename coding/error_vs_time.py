@@ -23,6 +23,11 @@ import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 
+from lib.stats import DF_THEORY, loglog_fit
+from lib.plotting import (
+    REGIME_COLORS, REGIME_LATEX, apply_grid, footer, pool_footer_text,
+)
+
 HERE = Path(__file__).resolve().parent           # presentation/coding
 ROOT = HERE.parent                                # presentation/
 DATA_DIR = ROOT / "simulation_data"
@@ -30,21 +35,14 @@ IMG_DIR  = ROOT / "images"
 CSV  = DATA_DIR / "regime_sweep.csv"
 META = DATA_DIR / "fractal_dim_pool.meta.json"
 
-DF_THEORY = 91.0 / 48.0
-
-# (regime_key, color, marker, jitter_log_x, plot_zorder)
+# (regime_key, marker, jitter_log_x, plot_zorder)
+# Colours come from REGIME_COLORS, labels from REGIME_LATEX (lib.plotting).
 REGIME_STYLE = [
-    ("alpha=1/4",  "#1f9d55", "o",  0.00, 3),
-    ("alpha=1/3",  "#7b68ee", "s", +0.03, 3),
-    ("alpha=1/2",  "#cc3333", "^", +0.06, 3),
-    ("const m0=1", "#222222", "X", -0.03, 10),    # plotted last, on top
+    ("alpha=1/4",  "o",  0.00, 3),
+    ("alpha=1/3",  "s", +0.03, 3),
+    ("alpha=1/2",  "^", +0.06, 3),
+    ("const m0=1", "X", -0.03, 10),    # plotted last, on top
 ]
-LABELS = {
-    "const m0=1": r"$m_0 = 1$ (const)",
-    "alpha=1/4":  r"$m_0 = \lfloor m/4 \rfloor$",
-    "alpha=1/3":  r"$m_0 = \lfloor m/3 \rfloor$",
-    "alpha=1/2":  r"$m_0 = \lfloor m/2 \rfloor$",
-}
 LABEL_OFFSET = {
     "const m0=1": (-6, -16),
     "alpha=1/4":  (+6, +8),
@@ -83,7 +81,8 @@ def main():
     fig, ax = plt.subplots(figsize=(10.0, 6.0))
 
     slope_by_regime = {}
-    for regime, color, marker, jitter, zorder in REGIME_STYLE:
+    for regime, marker, jitter, zorder in REGIME_STYLE:
+        color = REGIME_COLORS[regime]
         sub = sorted([r for r in rows if r["regime"] == regime],
                      key=lambda r: r["time_seconds"])
         if not sub:
@@ -94,11 +93,11 @@ def main():
             continue
         # OLS slope on log–log (only if ≥2 points)
         if len(sub) >= 2:
-            slope = np.polyfit(np.log(times), np.log(absb), 1)[0]
+            slope, _ = loglog_fit(times, absb)
             slope_by_regime[regime] = slope
-            label = LABELS[regime] + rf"   slope = {slope:+.2f}"
+            label = REGIME_LATEX[regime] + rf"   slope = {slope:+.2f}"
         else:
-            label = LABELS[regime]
+            label = REGIME_LATEX[regime]
 
         # apply small log-x jitter so coincident points don't fully overlap
         times_plot = times * (10.0 ** jitter)
@@ -126,14 +125,10 @@ def main():
     ax.set_title(rf"Error vs simulation time   "
                  rf"(square, $N={meta['N']}$, "
                  rf"$\tau\approx{sec_per_trial:.3f}$ s/trial)")
-    ax.grid(True, which="both", ls=":", alpha=0.4)
+    apply_grid(ax, log=True)
     ax.legend(loc="lower left", fontsize=9, framealpha=0.95)
     fig.tight_layout(rect=(0, 0.07, 1, 0.96))
-    fig.text(0.5, 0.01,
-             f"pool elapsed ≈ {meta['elapsed_seconds']}s   "
-             f"pool trials = {meta['n_trials']}   "
-             f"seed = {meta['seed']}   pool scales = {meta['scales']}",
-             ha="center", va="bottom", fontsize=9, color="#444", fontstyle="italic")
+    footer(fig, pool_footer_text(meta))
 
     out = IMG_DIR / "fig_error_vs_time.png"
     fig.savefig(out, dpi=160)

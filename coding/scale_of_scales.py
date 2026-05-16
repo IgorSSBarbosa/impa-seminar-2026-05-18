@@ -26,23 +26,19 @@ import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 
+from lib.stats import DF_THEORY, ols_slope
+from lib.plotting import apply_grid, footer, pool_footer_text
+
 HERE = Path(__file__).resolve().parent           # presentation/coding
 ROOT = HERE.parent                                # presentation/
 DATA_DIR = ROOT / "simulation_data"
 IMG_DIR  = ROOT / "images"
 POOL = DATA_DIR / "fractal_dim_pool.npz"
 
-DF_THEORY = 91.0 / 48.0
 M0 = 1                                     # drop the smallest scale (constant)
 # (n, m) pairs: n geometric, m linear  →  m/n → 0
 NM_GRID = [(64, 4), (128, 5), (256, 6), (512, 7)]
 R_MIN_REPLICAS = 3
-
-
-def ols_slope(log_r, log_y):
-    A = np.vstack([log_r, np.ones_like(log_r)]).T
-    slope, _ = np.linalg.lstsq(A, log_y, rcond=None)[0]
-    return slope
 
 
 def main():
@@ -115,7 +111,7 @@ def main():
     ax.set_ylabel(r"$\hat d_f$")
     ax.set_title(rf"Estimator $\hat d_f$ vs budget   "
                  rf"($m_0={M0}$, $m$ grows linearly with $\log n$)")
-    ax.grid(True, which="both", ls=":", alpha=0.4)
+    apply_grid(ax, log=True)
     ax.legend(loc="best", fontsize=9)
 
     meta = json.loads((DATA_DIR / "fractal_dim_pool.meta.json").read_text())
@@ -125,10 +121,7 @@ def main():
         fontsize=12, y=0.995,
     )
     fig.tight_layout(rect=(0, 0.07, 1, 0.93))
-    fig.text(0.5, 0.01,
-             f"pool elapsed ≈ {meta['elapsed_seconds']}s   seed = {meta['seed']}   "
-             f"pool scales = {list(int(s) for s in scales)}",
-             ha="center", va="bottom", fontsize=9, color="#444", fontstyle="italic")
+    footer(fig, pool_footer_text(meta, scales=scales))
 
     out = IMG_DIR / "fig_scale_of_scales.png"
     fig.savefig(out, dpi=160)

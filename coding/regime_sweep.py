@@ -27,6 +27,11 @@ import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 
+from lib.stats import DF_THEORY, ols_slope
+from lib.plotting import (
+    REGIME_COLORS, apply_grid, footer, pool_footer_text,
+)
+
 HERE = Path(__file__).resolve().parent           # presentation/coding
 ROOT = HERE.parent                                # presentation/
 DATA_DIR = ROOT / "simulation_data"
@@ -34,24 +39,16 @@ IMG_DIR  = ROOT / "images"
 POOL = DATA_DIR / "fractal_dim_pool.npz"
 META = DATA_DIR / "fractal_dim_pool.meta.json"
 
-DF_THEORY = 91.0 / 48.0
-
-# (label, color, m_0(m))
+# (label, m_0(m))  -- colour comes from REGIME_COLORS keyed by label
 REGIMES = [
-    ("const m0=1", "#888888", lambda m: 1),
-    ("alpha=1/4",  "#1f9d55", lambda m: m // 4),
-    ("alpha=1/3",  "#7b68ee", lambda m: m // 3),
-    ("alpha=1/2",  "#cc3333", lambda m: m // 2),
+    ("const m0=1", lambda m: 1),
+    ("alpha=1/4",  lambda m: m // 4),
+    ("alpha=1/3",  lambda m: m // 3),
+    ("alpha=1/2",  lambda m: m // 2),
 ]
 
 NM_GRID = [(32, 3), (64, 4), (128, 5), (256, 6), (512, 7)]
 R_MIN   = 3
-
-
-def ols_slope(log_r, log_y):
-    A = np.vstack([log_r, np.ones_like(log_r)]).T
-    slope, _ = np.linalg.lstsq(A, log_y, rcond=None)[0]
-    return slope
 
 
 def main():
@@ -73,7 +70,8 @@ def main():
     print(f"      sec/trial = {sec_per_trial:.4f}\n")
 
     rows = []
-    for label, color, m0_fn in REGIMES:
+    for label, m0_fn in REGIMES:
+        color = REGIME_COLORS[label]
         print(f"=== regime: {label} ===")
         for n, m in NM_GRID:
             m_0 = int(m0_fn(m))
@@ -103,7 +101,7 @@ def main():
             rmse  = float(np.sqrt(((sl - DF_THEORY) ** 2).mean()))
             t_sec = float(n * sec_per_trial)
             rows.append({
-                "regime": label, "color": color,
+                "regime": label,
                 "n": n, "m": m, "m_0": m_0, "R": len(sl),
                 "mean_slope": float(sl.mean()),
                 "bias": bias, "std": std, "rmse": rmse,
@@ -130,7 +128,8 @@ def main():
 
     # ── plot: mean ± std vs n, one curve per regime ──────────────────────────
     fig, ax = plt.subplots(figsize=(9.6, 5.8))
-    for label, color, _ in REGIMES:
+    for label, _ in REGIMES:
+        color = REGIME_COLORS[label]
         sub = [r for r in rows if r["regime"] == label]
         if not sub:
             continue
@@ -154,14 +153,11 @@ def main():
     ax.set_ylabel(r"$\hat d_f$")
     ax.set_title(rf"Regime sweep   (square, $N={meta['N']}$, "
                  rf"pool $={n_total}$, $\tau\approx{sec_per_trial:.3f}$ s/trial)")
-    ax.grid(True, which="both", ls=":", alpha=0.4)
+    apply_grid(ax, log=True)
     ax.legend(loc="lower right", fontsize=9)
 
     fig.tight_layout(rect=(0, 0.07, 1, 0.95))
-    fig.text(0.5, 0.01,
-             f"pool elapsed ≈ {meta['elapsed_seconds']}s   seed = {meta['seed']}   "
-             f"pool scales = {[int(s) for s in scales]}",
-             ha="center", va="bottom", fontsize=9, color="#444", fontstyle="italic")
+    footer(fig, pool_footer_text(meta, scales=scales))
 
     out = IMG_DIR / "fig_regime_sweep.png"
     fig.savefig(out, dpi=160)

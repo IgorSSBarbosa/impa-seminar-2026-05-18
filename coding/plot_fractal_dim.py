@@ -18,25 +18,18 @@ import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 
+from lib.stats import DF_THEORY, loglog_fit
+from lib.plotting import (
+    LATTICE_ORDER, LATTICE_LABEL, LATTICE_COLOR,
+    apply_grid, footer, sim_footer_text,
+)
+
 HERE = Path(__file__).resolve().parent           # presentation/coding
 ROOT = HERE.parent                                # presentation/
 DATA_DIR = ROOT / "simulation_data"
 IMG_DIR  = ROOT / "images"
 DATA = DATA_DIR / "fractal_dim_data.csv"
 META = DATA_DIR / "fractal_dim_data.meta.json"
-
-LATTICE_ORDER = ["hexagonal", "square", "triangular"]
-LATTICE_LABEL = {
-    "hexagonal":  "Honeycomb (3-conn)",
-    "square":     "Square (4-conn)",
-    "triangular": "Triangular (6-conn)",
-}
-LATTICE_COLOR = {
-    "hexagonal":  "#3cb371",
-    "square":     "#7b68ee",
-    "triangular": "#ff7f50",
-}
-DF_THEORY = 91.0 / 48.0  # universal 2D site-percolation fractal dimension
 
 
 def load_data() -> dict:
@@ -61,24 +54,8 @@ def load_meta() -> dict:
 
 
 def ols_loglog(r: np.ndarray, mean_V: np.ndarray):
-    x = np.log(r)
-    y = np.log(mean_V)
-    A = np.vstack([x, np.ones_like(x)]).T
-    slope, log_a0 = np.linalg.lstsq(A, y, rcond=None)[0]
-    return slope, log_a0
-
-
-def metadata_footer(meta: dict) -> str:
-    if not meta:
-        return ""
-    return (
-        f"N = {meta.get('N','?')}   "
-        f"trials = {meta.get('n_trials','?')}   "
-        f"scales = {meta.get('n_scales','?')}  "
-        f"({min(meta.get('scales',[0]))}…{max(meta.get('scales',[0]))})   "
-        f"elapsed ≈ {meta.get('elapsed_seconds','?')}s   "
-        f"seed = {meta.get('seed','?')}"
-    )
+    """Thin wrapper for backward compatibility: returns (slope, log_a0)."""
+    return loglog_fit(r, mean_V)
 
 
 def _draw_one_panel(ax, data: dict, lattices, *, log_scale: bool,
@@ -110,7 +87,7 @@ def _draw_one_panel(ax, data: dict, lattices, *, log_scale: bool,
         ax.set_xlabel(r"$r$")
         ax.set_ylabel(ylabel)
         ax.set_title("linear scale", fontsize=11)
-    ax.grid(True, which="both", ls=":", alpha=0.4)
+    apply_grid(ax, log=log_scale)
     ax.legend(loc="upper left", fontsize=9, framealpha=0.92)
 
 
@@ -127,9 +104,7 @@ def plot_universality(data: dict, meta: dict) -> Path:
         fontsize=13, y=0.99,
     )
     fig.tight_layout(rect=(0, 0.06, 1, 0.95))
-    fig.text(0.5, 0.015, metadata_footer(meta),
-             ha="center", va="bottom", fontsize=9,
-             color="#444", fontstyle="italic")
+    footer(fig, sim_footer_text(meta), y=0.015)
 
     out = IMG_DIR / "fig_universality.png"
     fig.savefig(out, dpi=160)
@@ -150,9 +125,7 @@ def plot_running_example(data: dict, meta: dict, lattice: str = "square") -> Pat
         fontsize=13, y=0.99,
     )
     fig.tight_layout(rect=(0, 0.06, 1, 0.95))
-    fig.text(0.5, 0.015, metadata_footer(meta),
-             ha="center", va="bottom", fontsize=9,
-             color="#444", fontstyle="italic")
+    footer(fig, sim_footer_text(meta), y=0.015)
 
     out = IMG_DIR / "fig_running_example.png"
     fig.savefig(out, dpi=160)
