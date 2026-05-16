@@ -610,7 +610,7 @@
   $\hat\gamma = \hat\beta/\log\rho$.
 
   \vspace{0.3em}
-  \textbf{Assumptions.}
+  \textbf{Assumptions on the model.}
   \begin{itemize}
     \item[(A1)] $\E Y_i = a_0\, i^{\gamma}
                 \exp\!\bigl(a_1\, i^{-1} + \phi(i)\, i^{-2}\bigr)$
@@ -620,14 +620,12 @@
     \item[(A3)] $\sigma_k^2 := \Var(\log \overline Y_{\rho^k})$
                 satisfies $n m^3 \sum_k w_{k,m}^{\,2}\, \sigma_k^2
                 \to \sigma_\infty^2 \in (0,\infty)$.
-    \item[(A4)] $n, m \to \infty$ with
-                $\rho^{-m_0} \ll \sqrt{m/n}$
-                (equivalently $\rho^{m_0} \gg \sqrt{n/m}$).
   \end{itemize}
 
   \vspace{0.3em}
   \begin{block}{Theorem (Barbosa--Teixeira--Imbuzeiro de Oliveira, 2026\textsuperscript{+})}
-    Under (A1)--(A4),
+    Under (A1)--(A3), if $n, m, m_0 \to \infty$ along any sequence
+    satisfying $m/n \to 0$ and $\rho^{-m_0} \ll \sqrt{m/n}$, then
     \[
       \sqrt{n\, m^{\,3}}\,\bigl(\hat\gamma - \gamma\bigr)
         \;\xrightarrow{\,d\,}\;
@@ -739,8 +737,8 @@
   \textbf{Condition for negligibility:}
   $\sqrt{nm^3}\cdot R(m,m_0) \to 0\;\Longleftrightarrow\;
   \rho^{-m_0} \ll \sqrt{m/n}$ (equivalently
-  $\rho^{m_0} \gg \sqrt{n/m}$). This is exactly assumption (A4) --- and
-  the design knob $m_0$ that drives §6.
+  $\rho^{m_0} \gg \sqrt{n/m}$). This is the second growth condition
+  in the theorem --- and the design knob $m_0$ that drives §6.
 \end{frame}
 
 % =====================================================================
