@@ -1,0 +1,507 @@
+% =====================================================================
+%  IMPA Statistics & AI seminar — 2026-05-18 (Monday, 13:30)
+%  "Log log plot — Estimating Critical Exponents"
+%
+%  Structural skeleton — one frame stub per planned slide.
+%  Every frame currently holds a red \TODO{...} placeholder; content
+%  lands in a later pass once the §-by-§ discussions happen.
+%
+%  Build:  latexmk -pdf talk.tex
+% =====================================================================
+\documentclass[10pt, aspectratio=169]{beamer}
+
+% ---------- theme ----------------------------------------------------
+%  Boadilla: white background, small footer with author/title/page —
+%  the standard IMPA look. The colour scheme below paints all
+%  structural details in dark blue (IMPA accent).
+\usetheme{Boadilla}
+
+% ---- IMPA colour scheme --------------------------------------------
+% Invisible / Medium / Dark variants of the three traffic-light hues,
+% then bound to Beamer's structural colour slots.
+\definecolor{InvisibleRed}{rgb}{0.97, 0.92, 0.92}
+\definecolor{InvisibleGreen}{rgb}{0.92, 0.97, 0.92}
+\definecolor{InvisibleBlue}{rgb}{0.92, 0.92, 0.97}
+
+\definecolor{MediumRed}{rgb}{0.925, 0.345, 0.345}
+\definecolor{MediumGreen}{rgb}{0.37, 0.7, 0.66}
+\definecolor{MediumBlue}{rgb}{0.015, 0.315, 0.45}
+
+\definecolor{DarkBlue}{rgb}{0.05, 0.15, 0.35}
+
+\usecolortheme[named=DarkBlue]{structure}
+
+\setbeamercolor{titlelike}{parent=structure}
+\setbeamercolor{block title}{bg=MediumBlue, fg=white}
+\setbeamercolor{block body}{bg=InvisibleBlue}
+\setbeamercolor{block title example}{bg=MediumGreen, fg=white}
+\setbeamercolor{block body example}{bg=InvisibleGreen}
+\setbeamercolor{block title alerted}{bg=MediumRed, fg=white}
+\setbeamercolor{block body alerted}{bg=InvisibleRed}
+
+% ---------- packages -------------------------------------------------
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{amsmath, amssymb, amsthm, mathtools}
+\usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage{tikz}
+\usepackage{booktabs}
+\usepackage[backend=biber, style=numeric]{biblatex}
+\addbibresource{refs.bib}
+
+\graphicspath{{../images/}}
+
+% ---------- footer override -----------------------------------------
+% Slim two-column footer: "log-log plot" on the left, "xx/38" on the
+% right. Overrides the default Boadilla three-segment footer.
+\setbeamertemplate{navigation symbols}{}
+\setbeamertemplate{footline}{%
+  \leavevmode%
+  \hbox{%
+    \begin{beamercolorbox}[wd=0.5\paperwidth, ht=2.25ex, dp=1ex,
+                           leftskip=1em]{author in head/foot}%
+      \usebeamerfont{author in head/foot}log-log plot%
+    \end{beamercolorbox}%
+    \begin{beamercolorbox}[wd=0.5\paperwidth, ht=2.25ex, dp=1ex,
+                           rightskip=1em]{date in head/foot}%
+      \hfill\usebeamerfont{date in head/foot}%
+        \insertframenumber/\inserttotalframenumber%
+    \end{beamercolorbox}%
+  }%
+  \vskip0pt%
+}
+
+% ---------- macros (minimal) -----------------------------------------
+\newcommand{\E}{\mathbb{E}}
+\renewcommand{\P}{\mathbb{P}}
+\newcommand{\Var}{\operatorname{Var}}
+
+% Notes-to-self — visible while drafting; will be stripped before the talk.
+\newcommand{\TODO}[1]{{\color{red}\textbf{[TODO]} #1}}
+
+% Advisor / co-advisor (custom — Beamer has no built-ins for these).
+\newcommand{\theadvisor}{}
+\newcommand{\thecoadvisor}{}
+\newcommand{\advisor}[1]{\renewcommand{\theadvisor}{#1}}
+\newcommand{\coadvisor}[1]{\renewcommand{\thecoadvisor}{#1}}
+
+% ---------- demo-break icon (TikZ) -----------------------------------
+% Stylised play button inside a rounded "screen", with a label below.
+% Used for the GIF / live-demo transition slides.
+\newcommand{\demoicon}[1]{%
+  \begin{center}
+    \begin{tikzpicture}
+      \draw[line width=3pt, rounded corners=10pt,
+            fill=InvisibleBlue, draw=DarkBlue]
+        (-3,-1.8) rectangle (3,1.8);
+      \fill[MediumBlue] (-0.85,-1.05) -- (-0.85,1.05) -- (1.15,0) -- cycle;
+      \node[below=0.45cm, font=\Large\bfseries, text=DarkBlue]
+        at (0,-1.8) {#1};
+    \end{tikzpicture}
+  \end{center}}
+
+\newcommand{\demoframe}[2]{%
+  \begin{frame}[plain]
+    \vfill
+    \demoicon{#1}
+    \vspace{1em}
+    \begin{center}\large #2\end{center}
+    \vfill
+  \end{frame}}
+
+% =====================================================================
+%  Title block
+% =====================================================================
+\advisor{Augusto Teixeira}
+\coadvisor{Roberto Imbuzeiro}
+
+\title{Log log plot:}
+\subtitle{Estimating Critical Exponents}
+\author{Barbosa I.\\[0.6em]
+  {\footnotesize Advisor: \theadvisor\\
+   Co-advisor: \thecoadvisor}}
+\institute{IMPA -- Instituto Nacional de Matemática Pura e Aplicada}
+\date{18 May 2026}
+\titlegraphic{\hfill\includegraphics[height=1.4cm]{impa-logo.png}\hspace{0.4em}}
+
+% =====================================================================
+\begin{document}
+
+\maketitle
+
+\begin{frame}{Plan of the talk}
+  \tableofcontents
+\end{frame}
+
+% =====================================================================
+\section{Phase transitions in percolation}
+% target: ≈ 7 min
+% =====================================================================
+
+\begin{frame}[plain]
+  \begin{center}
+    \includegraphics[height=0.95\paperheight, keepaspectratio]%
+                    {Broadbent_Hammersley\(1957\).pdf}
+  \end{center}
+  \note{%
+    Broadbent \& Hammersley (1957)~\cite{broadbentHammersley1957}
+    wanted to model a gas mask: a porous carbon granule with random
+    defects. They threw away \emph{everything} physical except one
+    number --- the density $p$ of \emph{open} sites.\par\smallskip
+    %
+    No particle interactions. No movement. No gravity. No chemistry.
+    Just: each site is open with probability $p$, independently; a
+    ``fluid'' percolates iff the open cluster of the source reaches
+    the surface.\par\smallskip
+    %
+    Caricature of a physical system $\Rightarrow$ surprisingly rich
+    mathematics.%
+  }
+\end{frame}
+
+\demoframe{SIMULATION}{run - \texttt{perc\_interactive.py}}
+
+\begin{frame}{Phase transitions everywhere}
+  \begin{itemize}
+    \item Ising model (magnetisation)
+    \item XY model
+    \item Diffusion / interacting particle systems
+    \item Random walks
+    \item Spread of infection
+    \item Polymers / self-avoiding walks
+  \end{itemize}
+  \vspace{0.6em}
+  Common thread: a control parameter, an order parameter, a critical
+  value, power-law behaviour at the threshold.
+  \vspace{0.6em}
+
+  \TODO{Verbal: \emph{the same drama plays out in many
+        statistical-mechanics models. We restrict ourselves to
+        percolation today, but the wider problem is to do statistics
+        on any of these.}
+        Drop in image / icon thumbnails next to each bullet later.}
+\end{frame}
+
+\begin{frame}{Simulating percolation on a computer}
+  \TODO{Chalkboard explanation --- slide is a stub.}
+
+  \vspace{0.6em}
+  \textbf{Uniform coupling.} Draw one i.i.d.\ array
+  $U_x \sim \mathrm{Unif}[0,1]$ once; for any $p$, declare site $x$
+  open iff $U_x \le p$. Same realisation, every $p$ simultaneously
+  $\Rightarrow$ monotone in $p$.
+
+  \TODO{Perfect for the slider demo.
+
+        \textbf{(2) 3/4/6-connected.} Same recipe, different
+        neighbourhoods: honeycomb ($z=3$), square ($z=4$), triangular
+        ($z=6$). Coordination number $z$ controls how easy it is for
+        the cluster to grow $\Rightarrow$ different $p_c$.}
+\end{frame}
+
+\demoframe{GIF}{run - \texttt{lattices\_merged.gif}}
+
+\begin{frame}{Defining the critical parameter $p_c$}
+  Fix a lattice. Let
+  \[
+    \theta(p) \;=\; \P_p\!\big(\, 0 \leftrightarrow \infty \,\big)
+  \]
+  be the probability that the cluster of the origin is infinite.
+  $\theta$ is monotone non-decreasing in $p$, and
+  \[
+    p_c \;:=\; \sup\{\, p \in [0,1] \,:\, \theta(p) = 0 \,\}
+        \;=\; \inf\{\, p \in [0,1] \,:\, \theta(p) > 0 \,\}.
+  \]
+
+  \begin{itemize}
+    \item $p < p_c$: with probability $1$, every cluster is finite
+          (sub-critical phase).
+    \item $p > p_c$: a unique infinite cluster exists almost surely
+          (super-critical phase).
+    \item $p = p_c$: \emph{critical phase}. No infinite cluster, but
+          clusters of every scale --- the scale-invariant regime where
+          $\E V(r) \sim r^{d_f}$ lives.
+  \end{itemize}
+
+  \vspace{0.4em}
+  \begin{center}
+    \begin{tabular}{lccc}
+      \toprule
+      lattice              & honeycomb            & square                       & triangular \\
+      vertex degree        & $3$                  & $4$                          & $6$        \\
+      $p_c$                & $\approx 0.6962$     & $\approx 0.59274621$         & $= 0.5$    \\
+      \bottomrule
+    \end{tabular}
+  \end{center}
+
+  \TODO{Higher vertex degree $\Rightarrow$ easier for the cluster to
+        grow $\Rightarrow$ lower $p_c$. Triangular $p_c = 1/2$ is
+        \emph{exact} (Sykes--Essam duality); square is only known
+        numerically. See~\cite{grimmett1999percolation}.}
+\end{frame}
+
+% =====================================================================
+\section{Critical exponents, scaling, universality}
+% target: ≈ 10 min
+% =====================================================================
+
+\begin{frame}{Two anchor observables}
+  (a) cluster volume $\E V(r) \sim r^{d_f}$ at $p = p_c$.
+
+  \vspace{0.4em}
+  (b) mean cluster size $\chi(p) \sim |p - p_c|^{-\gamma}$
+  (off-critical).
+
+  \vspace{0.8em}
+  \TODO{Both kinds of observables are important, but we focus on
+        observables of the first kind --- positive exponents are
+        easier to measure.
+
+        Insert image: \texttt{fig\_running\_example.png}.}
+\end{frame}
+
+\begin{frame}{Why log--log linearises a power law}
+  Heuristic:
+  \begin{align*}
+    \E V(r) &\sim r^{d_f} \\
+    \log \E V(r) &\approx d_f \log r + \mathrm{const}.
+  \end{align*}
+
+  \TODO{Physicists ``read the slope''. Display
+        \texttt{fig\_running\_example.png}.}
+\end{frame}
+
+\begin{frame}{Universality across lattices}
+  \TODO{same $d_f$, three lattices, parallel lines.
+        Embed \texttt{fig\_universality.png}.}
+\end{frame}
+
+\demoframe{GIF}{run - \texttt{percolation\_meanfield.gif}}
+
+\begin{frame}{(Optional bridge to statistics) The classical CLT}
+  \TODO{$S_n \sim \sqrt{n}$ as a ``toy universality statement'':
+        exponent $1/2$ independent of step distribution (provided
+        $\Var < \infty$). Bridge from physicists' universality to
+        statisticians' universality.}
+\end{frame}
+
+% =====================================================================
+\section{From physics heuristic to statistical question}
+% target: ≈ 8 min
+% =====================================================================
+
+\begin{frame}{The running example, revisited}
+  \TODO{re-display \texttt{fig\_running\_example.png}. Familiar image
+        $\Rightarrow$ lower cognitive load when we start adding the
+        statistical machinery.}
+\end{frame}
+
+\begin{frame}{Big dots ``trick''}
+  \TODO{Compare \texttt{fig\_running\_example.png} with
+        \texttt{fig\_running\_example\_small\_dots.png}.
+        Same fit, same data; only the markersize changed. With smaller
+        dots the eye stops interpolating across fat blobs and the
+        finite-size deviation at small $r$ becomes visible. Moral:
+        ``looks linear'' is a perceptual claim, not a statistical one.}
+\end{frame}
+
+\begin{frame}{What physicists measure vs.\ what they want}
+  \TODO{They want $\E Y_i$, they observe $\overline Y_i$.
+        $\E Y_i = a_0\, i^{\gamma}\exp\!\big(\sum_{j=1}^{J} a_j i^{-j}
+        + \phi_J(i)\,i^{-J-1}\big)$ — finite-size expansion.
+        Today: focus on $J = 1$.}
+\end{frame}
+
+\begin{frame}{Bias--variance trade-off in one picture}
+  \TODO{Large $r$: small finite-size bias, expensive $\Rightarrow$ few
+        samples $\Rightarrow$ high variance. Small $r$: cheap but
+        biased. The log--log estimator must pick its scales accordingly.}
+\end{frame}
+
+\begin{frame}{Chalkboard: log--log linearisation}
+  \TODO{board derivation of
+        $\log\E Y_{\rho^k} = \log a_0 + k\beta\log\rho
+        + a_1 \rho^{-k} + \phi_1(\rho^k)\rho^{-2k}$.
+        Slide just states the resulting expansion.}
+\end{frame}
+
+% =====================================================================
+\section{The log--log estimator and its three-part split}
+% target: ≈ 6 min
+% =====================================================================
+
+\begin{frame}{The OLS slope estimator}
+  \TODO{$\hat\beta = \sum_{k=m_0+1}^{m_0+m} w_{k,m}\,
+        \log\overline Y_{\rho^k}$
+        with $w_{k,m} = \dfrac{12\big(k - m_0 - (m+1)/2\big)}{m(m^2-1)}$.
+        $w$ is the OLS coefficient on $k$.}
+\end{frame}
+
+\begin{frame}{The three-part split}
+  \TODO{$\log\overline Y_{\rho^k} = \log\E Y_{\rho^k}
+        + \log\big(\overline Y_{\rho^k}/\E Y_{\rho^k}\big)$.
+        Combine: $\hat\beta - \beta = R(m,m_0) + S_{n,m} + Q_{n,m}$.
+        $R$ = deterministic finite-size bias; $S$ = linear stochastic
+        (CLT-able); $Q$ = quadratic Taylor remainder.}
+\end{frame}
+
+\begin{frame}{Linear regression as a linear functional}
+  \TODO{Visual: $\hat\beta$ is a linear combination of the
+        $\log\overline Y_{\rho^k}$'s with weights $w_{k,m}$ that sum
+        to zero and integrate against $k$ to one. This is why the CLT
+        machinery is applicable.}
+\end{frame}
+
+% =====================================================================
+\section{Main theorem: CLT for $\hat\gamma$}
+% target: ≈ 10 min
+% =====================================================================
+
+\begin{frame}{Main theorem}
+  \TODO{Under $(2+\delta)$-moment, bounded $\phi_j$, and variance
+        convergence:
+        $\sqrt{n m^3}\,(\hat\gamma - \gamma)\;\Rightarrow\;
+        \mathcal N\!\Big(0,\, \tfrac{12\sigma_\infty^2}{\log^2\rho}\Big).$
+        Rate $\sqrt{nm^3}$ combines $n$ trials and $m$ scales.}
+\end{frame}
+
+\begin{frame}{Proof sketch — decomposition}
+  \TODO{Recall $\hat\beta - \beta = R + S + Q$. Treat each piece
+        separately. Strategy: $R \to 0$ via choice of $m_0$ (§6);
+        $S$ drives the CLT; $Q$ vanishes faster than the CLT rate.}
+\end{frame}
+
+\begin{frame}{Proof sketch — $S_{n,m}$ via Lindeberg--Feller}
+  \TODO{$S_{n,m}$ is a triangular array of weighted sums. Verify the
+        Lyapunov $(2+\delta)$-condition $\Rightarrow$ CLT. State the
+        limiting variance $12\sigma_\infty^2/\log^2\rho$.}
+\end{frame}
+
+\begin{frame}{Proof sketch — $Q_{n,m}$ Taylor remainder}
+  \TODO{$\log(\overline Y / \E Y) - (\overline Y / \E Y - 1)$ is
+        quadratic on the good event $\{|\overline Y - \E Y| \le
+        \tfrac12 \E Y\}$. Good-event probability $\to 1$ fast;
+        bad-event contribution is $o(1/\sqrt{nm^3})$.}
+\end{frame}
+
+\begin{frame}{Proof sketch — $R(m,m_0)$ finite-size bias}
+  \TODO{Deterministic; $R \asymp \rho^{-m_0}/m^2$ under $J=1$ expansion.
+        Made negligible by choosing $m_0$ large enough — but not too
+        large, otherwise $S$ blows up. Foreshadow §6.}
+\end{frame}
+
+% =====================================================================
+\section{The role of $m_0$ and Wilson confidence intervals}
+% target: ≈ 7 min
+% =====================================================================
+
+\begin{frame}{Why throw away the first $m_0$ scales}
+  \TODO{The first scales are the most biased; the OLS weights $w_{k,m}$
+        give them large lever arms. Dropping them kills the leading
+        $\rho^{-k}$ term in the expansion.}
+\end{frame}
+
+\begin{frame}{Wilson-style confidence interval}
+  \TODO{Four terms, each with its own rate:
+        $|\hat\gamma - \gamma| \le
+        \underbrace{C_1\rho^{-m_0}/m^2}_{\text{finite size}}
+        + \underbrace{C_2/(nm)}_{\text{Jensen good event}}
+        + \underbrace{C_3 \exp(-cn)}_{\text{bad event}}
+        + \underbrace{z_{1-\alpha/2}\,\sqrt{12\sigma_\infty^2/(\log^2\rho \cdot nm^3)}}_{\text{Gaussian}}.$
+        Each term decays at a different rate — the knob is $m_0$.}
+\end{frame}
+
+\begin{frame}{Empirical comparison of $m_0$ regimes}
+  \TODO{Embed \texttt{fig\_regime\_sweep.png} — $\hat d_f \pm$ SE
+        (band: $\pm$ std) for $m_0 = $ const / $\alpha m /
+        \tfrac12\log_\rho(nm^3)$.}
+\end{frame}
+
+\begin{frame}{Error vs.\ simulation time}
+  \TODO{Embed \texttt{fig\_error\_vs\_time.png}; legend slopes per
+        regime. Which $m_0$ schedule gives the best $|\mathrm{bias}|$
+        decay rate per second of compute?}
+\end{frame}
+
+\begin{frame}{The masterpiece plot — error vs.\ budget $B$}
+  \TODO{Embed L4 plot (to be produced): budget $B \in \{1,2,4,8,16\}$,
+        $m(B) = m_0 + \log_2 B$, three regimes (const, $\alpha=1/2$,
+        log-$\rho$). The ``which knob and how should you turn it''
+        slide.}
+\end{frame}
+
+% =====================================================================
+\section{Lower bound and optimality}
+% target: ≈ 4 min
+% =====================================================================
+
+\begin{frame}{Minimax lower bound}
+  \TODO{$\inf_{\hat\gamma}\sup_\theta \E_\theta[\hat\gamma -
+        \gamma(\theta)]^2 \gtrsim B^{-2\omega/(d + 2\Omega)},$
+        where $\omega$ is the leading exponent and $\Omega$ the
+        correction-to-scale exponent. Proof: KL between two product
+        measures differing in $\gamma$, then Fano.}
+\end{frame}
+
+\begin{frame}{Upper bound matches the lower bound up to logs}
+  \TODO{Plug $m \asymp \log_\rho(B)$ and $n \asymp B/m$ in our CLT
+        rate $1/\sqrt{nm^3}$; recover the lower bound up to log
+        factors. $\Rightarrow$ the log--log estimator is near-minimax.}
+\end{frame}
+
+% =====================================================================
+\section{(Optional) Closed-form sanity checks}
+% target: ≈ 3 min (cut first if running long)
+% =====================================================================
+
+\begin{frame}{Bethe lattice}
+  \TODO{$\E Y_i$ has a closed form via Stirling; verify the expansion
+        used in §3 reproduces it.}
+\end{frame}
+
+\begin{frame}{Simple random walk}
+  \TODO{Return-to-origin observable; closes the loop back to the
+        classical-CLT analogy from §2.}
+\end{frame}
+
+% =====================================================================
+\section{Wrap-up}
+% target: ≈ 2 min
+% =====================================================================
+
+\begin{frame}{Take-aways}
+  \TODO{(1) Physicists' log--log plot has a rigorous statistical theory.
+        (2) The estimator is asymptotically near-optimal.
+        (3) $m_0$ is the key practical lever; $\alpha m$ with
+            $\alpha \in (1/4, 1/2)$ is robust in practice.
+        (4) Confidence intervals: four explicit terms, each with a
+            different rate — pick $m_0$ to balance.}
+\end{frame}
+
+\begin{frame}[plain]
+  \vfill
+  \begin{center}
+    {\Huge Thank you.}\\[1em]
+    {\large Questions?}
+  \end{center}
+  \vfill
+\end{frame}
+
+% =====================================================================
+%  Appendix (post-Q&A backup frames)
+% =====================================================================
+\appendix
+
+\begin{frame}{Appendix: pool simulation pipeline (L0--L4)}
+  \TODO{One-pager on the hierarchical simulation structure (L0 trial
+        $\to$ L1 mean $\to$ L2 slope $\to$ L3 replicas $\to$ L4 budget).
+        Reference \texttt{notes/simulation\_hierarchy.md}.}
+\end{frame}
+
+\begin{frame}{Appendix: numerical precision \& BFS speed-up}
+  \TODO{Box-clipped BFS vs.\ full Bernoulli + union-find; $20\times$
+        speed-up at $N=4096$. Reference \texttt{coding/bench\_l0.py}.}
+\end{frame}
+
+\end{document}
