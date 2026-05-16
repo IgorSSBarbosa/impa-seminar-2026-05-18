@@ -56,17 +56,18 @@ def load_rows():
     with CSV.open() as f:
         for r in csv.DictReader(f):
             rows.append({
-                "regime":        r["regime"],
-                "n":             int(r["n"]),
-                "m":             int(r["m"]),
-                "m_0":           int(r["m_0"]),
-                "R":             int(r["R"]),
-                "mean_slope":    float(r["mean_slope"]),
-                "bias":          float(r["bias"]),
-                "std":           float(r["std"]),
-                "rmse":          float(r["rmse"]),
-                "time_seconds":  float(r["time_seconds"]),
-                "sec_per_trial": float(r["sec_per_trial"]),
+                "regime":             r["regime"],
+                "n":                  int(r["n"]),
+                "m":                  int(r["m"]),
+                "m_0":                int(r["m_0"]),
+                "log_logPlot_trials": int(r["log_logPlot_trials"]),
+                "mean_slope":         float(r["mean_slope"]),
+                "bias":               float(r["bias"]),
+                "std":                float(r["std"]),
+                "rmse":               float(r["rmse"]),
+                "mean_L2_time_s":     float(r["mean_L2_time_s"]),
+                "total_time_s":       float(r["total_time_s"]),
+                "sec_per_trial":      float(r["sec_per_trial"]),
             })
     return rows
 
@@ -84,11 +85,11 @@ def main():
     for regime, marker, jitter, zorder in REGIME_STYLE:
         color = REGIME_COLORS[regime]
         sub = sorted([r for r in rows if r["regime"] == regime],
-                     key=lambda r: r["time_seconds"])
+                     key=lambda r: r["mean_L2_time_s"])
         if not sub:
             continue
-        times = np.array([r["time_seconds"] for r in sub])
-        absb  = np.array([abs(r["bias"])    for r in sub])
+        times = np.array([r["mean_L2_time_s"] for r in sub])
+        absb  = np.array([abs(r["bias"])      for r in sub])
         if np.any(absb <= 0):
             continue
         # OLS slope on log–log (only if ≥2 points)

@@ -48,7 +48,11 @@ REGIMES = [
 ]
 
 NM_GRID = [(32, 3), (64, 4), (128, 5), (256, 6), (512, 7)]
-R_MIN   = 3
+
+# L3: each cell wants this many disjoint L2 replicas. R is the *target*; we
+# fall back to floor(n_total / n) if the pool is too small (with a warning).
+LOG_LOGPLOT_TRIALS = 64
+R_MIN              = 3
 
 
 def main():
@@ -79,10 +83,14 @@ def main():
                 print(f"  (n={n}, m={m})  m_0={m_0}  "
                       f"needs {m_0+m} scales, pool has {n_scales_avail} — SKIP")
                 continue
-            R = n_total // n
+            R_avail = n_total // n
+            R = min(LOG_LOGPLOT_TRIALS, R_avail)
             if R < R_MIN:
                 print(f"  (n={n}, m={m})  m_0={m_0}  only R={R} replicas — SKIP")
                 continue
+            if R < LOG_LOGPLOT_TRIALS:
+                print(f"  (n={n}, m={m})  WARN: pool gives only "
+                      f"{R_avail} chunks, target was {LOG_LOGPLOT_TRIALS}")
             use   = slice(m_0, m_0 + m)
             log_r = np.log(scales[use].astype(np.float64))
             sl    = np.empty(R)
@@ -96,27 +104,32 @@ def main():
             sl    = sl[~np.isnan(sl)]
             if len(sl) == 0:
                 continue
-            bias  = float(sl.mean() - DF_THEORY)
-            std   = float(sl.std(ddof=1)) if len(sl) > 1 else 0.0
-            rmse  = float(np.sqrt(((sl - DF_THEORY) ** 2).mean()))
-            t_sec = float(n * sec_per_trial)
+            bias        = float(sl.mean() - DF_THEORY)
+            std         = float(sl.std(ddof=1)) if len(sl) > 1 else 0.0
+            rmse        = float(np.sqrt(((sl - DF_THEORY) ** 2).mean()))
+            mean_L2_t   = float(n * sec_per_trial)          # one L2 replica
+            total_t     = float(len(sl) * mean_L2_t)        # whole L3 cell
             rows.append({
                 "regime": label,
-                "n": n, "m": m, "m_0": m_0, "R": len(sl),
+                "n": n, "m": m, "m_0": m_0,
+                "log_logPlot_trials": len(sl),
                 "mean_slope": float(sl.mean()),
                 "bias": bias, "std": std, "rmse": rmse,
-                "time_seconds": t_sec,
+                "mean_L2_time_s": mean_L2_t,
+                "total_time_s":   total_t,
                 "scales_used": [int(s) for s in scales[use]],
             })
             print(f"  (n={n:4d}, m={m})  m_0={m_0}  R={len(sl):3d}  "
                   f"mean={sl.mean():.4f}  bias={bias:+.4f}  std={std:.4f}  "
-                  f"t={t_sec:7.2f}s  scales={list(scales[use])}")
+                  f"L2={mean_L2_t:7.2f}s  total={total_t:8.1f}s  "
+                  f"scales={list(scales[use])}")
         print()
 
     # ── CSV ──────────────────────────────────────────────────────────────────
     csv_path = DATA_DIR / "regime_sweep.csv"
-    fields = ["regime", "n", "m", "m_0", "R", "mean_slope", "bias", "std",
-              "rmse", "time_seconds", "sec_per_trial", "scales_used"]
+    fields = ["regime", "n", "m", "m_0", "log_logPlot_trials",
+              "mean_slope", "bias", "std", "rmse",
+              "mean_L2_time_s", "total_time_s", "sec_per_trial", "scales_used"]
     with csv_path.open("w") as f:
         w = csv.DictWriter(f, fieldnames=fields)
         w.writeheader()

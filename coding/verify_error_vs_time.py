@@ -124,20 +124,20 @@ def main():
         print(f"  {name:<14} verifier={here:+.10f}   "
               f"csv={there:+.10f}   |Δ|={diff:.2e}  {ok}")
 
-    cmp("mean_slope",   mean_slope,    float(csv_row["mean_slope"]))
-    cmp("bias",         bias,          float(csv_row["bias"]))
-    cmp("std",          std,           float(csv_row["std"]))
-    cmp("rmse",         rmse,          float(csv_row["rmse"]))
-    cmp("time_seconds", time_seconds,  float(csv_row["time_seconds"]))
+    cmp("mean_slope",     mean_slope,    float(csv_row["mean_slope"]))
+    cmp("bias",           bias,          float(csv_row["bias"]))
+    cmp("std",            std,           float(csv_row["std"]))
+    cmp("rmse",           rmse,          float(csv_row["rmse"]))
+    cmp("mean_L2_time_s", time_seconds,  float(csv_row["mean_L2_time_s"]))
 
     # ── Stage 3: rebuild the legend slope for this regime ────────────────────
     banner(f"Stage 3  ·  log-log legend slope for regime '{TARGET['regime']}'")
     reg_rows = sorted(
         (r for r in rows if r["regime"] == TARGET["regime"]),
-        key=lambda r: float(r["time_seconds"]),
+        key=lambda r: float(r["mean_L2_time_s"]),
     )
-    times = np.array([float(r["time_seconds"]) for r in reg_rows])
-    absb  = np.array([abs(float(r["bias"]))    for r in reg_rows])
+    times = np.array([float(r["mean_L2_time_s"]) for r in reg_rows])
+    absb  = np.array([abs(float(r["bias"]))      for r in reg_rows])
     log_t = np.log(times)
     log_b = np.log(absb)
     print("       n     m   m_0          time_s          |bias|     log t      log|b|")
