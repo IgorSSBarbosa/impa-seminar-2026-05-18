@@ -299,29 +299,38 @@
 \end{frame}
 
 \begin{frame}{Why log--log linearises a power law (\& finite-size effects)}
-  \scriptsize
-  Heuristic: $\E V(r) \sim r^{d_f} \;\Rightarrow\;
-  \log \E V(r) \approx d_f \log r + \mathrm{const.}$
-  Physicists ``read the slope''. But the relation is only
-  \textbf{asymptotic} --- at small $r$ there are corrections.
+  \begin{columns}[T,onlytextwidth]
+    \begin{column}{0.50\textwidth}
+      \centering
+      \includegraphics[width=\linewidth, keepaspectratio]%
+                      {fig_running_example.png}\\[0.4em]
+      \includegraphics[width=\linewidth, keepaspectratio]%
+                      {fig_running_example_small_dots.png}
+    \end{column}
+    \begin{column}{0.48\textwidth}
+      \scriptsize
+      Heuristic: $\E V(r) \sim r^{d_f} \;\Rightarrow\;
+      \log \E V(r) \approx d_f \log r + \mathrm{const.}$
+      Physicists ``read the slope''. But the relation is only
+      \textbf{asymptotic} --- at small $r$ there are corrections.
 
-  \vspace{-0.3em}
-  \begin{center}
-    \includegraphics[height=0.36\textheight, keepaspectratio]%
-                    {fig_running_example.png}\\[-0.2em]
-    \includegraphics[height=0.36\textheight, keepaspectratio]%
-                    {fig_running_example_small_dots.png}
-  \end{center}
+      \vspace{0.4em}
+      \textbf{Top.} Big markers --- looks dead-straight, slope reads
+      cleanly.
 
-  \vspace{-0.5em}
-  \TODO{Top: big markers --- looks dead-straight, slope reads cleanly.
-        Bottom: same data, $1/3$-size markers --- now the small-$r$
-        points clearly peel off the line. Finite-size effect: the
-        cluster at small $r$ has not yet developed its asymptotic
-        scaling; boundary / surface corrections dominate. Formally
-        captured by the $a_1\, r^{-1}$ correction term in the
-        expansion of §3, and the reason the log--log estimator throws
-        away the first $m_0$ scales.}
+      \vspace{0.2em}
+      \textbf{Bottom.} Same data, $1/3$-size markers --- now the
+      small-$r$ points clearly peel off the line. \textbf{Finite-size
+      effect}: at small $r$ the cluster has not yet developed its
+      asymptotic scaling; boundary/surface corrections dominate.
+      Formally: the $a_1\, r^{-1}$ correction in the expansion of §3.
+
+      \vspace{0.4em}
+      \textbf{Remark.} The standard fix is to \textbf{drop the first
+      $m_0$ scales} and fit the OLS line on the remaining $m$ points.
+      $m_0$ becomes the main design knob (§6).
+    \end{column}
+  \end{columns}
 \end{frame}
 
 \begin{frame}{Universality across lattices}
@@ -362,13 +371,6 @@
         a statistician's reading (``what is the slope, and how
         uncertain is it?''). From this point on every claim about
         $d_f$ comes with an error bar.}
-
-  \vspace{0.3em}
-  {\footnotesize\textbf{Remark.} The first few points on the left bend
-  away from the line --- those are the small scales where finite-size
-  corrections dominate. A natural fix is to \textbf{ignore the first
-  $m_0$ scales} and fit the OLS line on the remaining $m$ points; the
-  parameter $m_0$ becomes the main design knob (§6).}
 \end{frame}
 
 \begin{frame}{What physicists measure vs.\ what they want}
