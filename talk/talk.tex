@@ -351,29 +351,120 @@
 % =====================================================================
 
 \begin{frame}{The running example, revisited}
-  \TODO{re-display \texttt{fig\_running\_example.png}. Familiar image
-        $\Rightarrow$ lower cognitive load when we start adding the
-        statistical machinery.}
+  \begin{center}
+    \includegraphics[width=0.78\linewidth, keepaspectratio]%
+                    {fig_running_example.png}
+  \end{center}
+
+  \TODO{Same image as in §2 --- familiar on purpose. The switch we make
+        \emph{now} is from a physicist's reading (``looks linear'') to
+        a statistician's reading (``what is the slope, and how
+        uncertain is it?''). From this point on every claim about
+        $d_f$ comes with an error bar.}
 \end{frame}
 
 \begin{frame}{What physicists measure vs.\ what they want}
-  \TODO{They want $\E Y_i$, they observe $\overline Y_i$.
-        $\E Y_i = a_0\, i^{\gamma}\exp\!\big(\sum_{j=1}^{J} a_j i^{-j}
-        + \phi_J(i)\,i^{-J-1}\big)$ — finite-size expansion.
-        Today: focus on $J = 1$.}
+  \begin{columns}[t]
+    \begin{column}{0.48\textwidth}
+      \begin{block}{Want (unobservable)}
+        \centering $\E V(r)$ \\[0.2em]
+        \footnotesize the population mean
+      \end{block}
+    \end{column}
+    \begin{column}{0.48\textwidth}
+      \begin{block}{Have (observable)}
+        \centering $\overline V(r) \;=\; \dfrac{1}{n}\sum_{t=1}^{n} V_t(r)$ \\[0.2em]
+        \footnotesize sample mean over $n$ independent trials
+      \end{block}
+    \end{column}
+  \end{columns}
+
+  \vspace{0.8em}
+  \textbf{Working hypothesis.} The population mean admits a $J$-order
+  asymptotic expansion
+  \[
+    \E Y_i \;=\; a_0\, i^{\gamma}\,
+       \exp\!\Big(\, \sum_{j=1}^{J} a_j\, i^{-j}
+                  \;+\; \phi_J(i)\, i^{-J-1} \,\Big),
+    \qquad \phi_J \text{ bounded.}
+  \]
+  Today: $J = 1$. Identifications for our running example:
+  $Y_i \leftrightarrow V(r)$ with $i = r$, $\gamma \leftrightarrow d_f$.
+
+  \TODO{$a_0$ is a lattice-dependent amplitude (the intercept on the
+        log--log panel). $a_1, a_2, \ldots$ are finite-size correction
+        coefficients --- they encode boundary / discreteness effects.
+        $\phi_J$ is the remainder, assumed only \emph{bounded}.
+        $J$ controls how many correction terms we keep. $J = 1$ is
+        already enough for the running example because the first
+        correction $a_1/i$ dominates and the rest is geometric in $i$.
+        General $J$ is in the paper~\cite{bigCluster} but does not
+        change the structure of the talk.}
 \end{frame}
 
-\begin{frame}{Bias--variance trade-off in one picture}
-  \TODO{Large $r$: small finite-size bias, expensive $\Rightarrow$ few
-        samples $\Rightarrow$ high variance. Small $r$: cheap but
-        biased. The log--log estimator must pick its scales accordingly.}
+\begin{frame}{Bias--variance trade-off}
+  \begin{columns}[t]
+    \begin{column}{0.48\textwidth}
+      \begin{alertblock}{Small $r$  (cheap)}
+        $\checkmark$ many trials affordable in a fixed compute budget
+        $\Rightarrow$ \emph{low variance} of $\overline V(r)$.\\[0.4em]
+        $\times$ finite-size correction $a_1 / r$ is large
+        $\Rightarrow$ \emph{high bias}.
+      \end{alertblock}
+    \end{column}
+    \begin{column}{0.48\textwidth}
+      \begin{exampleblock}{Large $r$  (expensive)}
+        $\checkmark$ asymptotic regime: $a_1 / r \to 0$
+        $\Rightarrow$ \emph{low bias}.\\[0.4em]
+        $\times$ each trial costs more time, fewer trials fit in the
+        budget $\Rightarrow$ \emph{high variance}.
+      \end{exampleblock}
+    \end{column}
+  \end{columns}
+
+  \vspace{0.8em}
+  \begin{center}
+    \large
+    $\Rightarrow$ Choosing \emph{which scales to use} is a
+    statistical decision, not an aesthetic one.
+  \end{center}
+
+  \TODO{This is what the rest of the talk is about. The estimator we
+        will define drops the first $m_0$ scales (kills bias) and
+        averages over an OLS window of width $m$ (controls variance).
+        The whole point of §6 is: \emph{how should $m_0$ scale with
+        $m$ and with the compute budget?} That is the practical knob.}
 \end{frame}
 
 \begin{frame}{Chalkboard: log--log linearisation}
-  \TODO{board derivation of
-        $\log\E Y_{\rho^k} = \log a_0 + k\beta\log\rho
-        + a_1 \rho^{-k} + \phi_1(\rho^k)\rho^{-2k}$.
-        Slide just states the resulting expansion.}
+  Take $\log$ of the $J = 1$ expansion and substitute $i = \rho^k$:
+  \[
+    \log \E Y_{\rho^k} \;=\;
+      \underbrace{\log a_0 \;+\; k\, \gamma \log \rho}_{\text{signal (linear in }k\text{)}}
+      \;+\;
+      \underbrace{a_1\, \rho^{-k} \;+\; \phi_1(\rho^k)\, \rho^{-2k}}_{\text{finite-size correction (geometric in }k\text{)}}.
+  \]
+
+  \vspace{0.4em}
+  \begin{itemize}
+    \item In the variable $k$ (not $r$!), the leading term is
+          \emph{linear} with slope $\gamma \log \rho$.
+    \item The correction decays \emph{geometrically} in $k$ (since
+          $\rho > 1$): after a few scales it is statistical noise, not
+          signal.
+    \item $\Rightarrow$ OLS slope of $\log \overline Y_{\rho^k}$ on $k$
+          is a natural estimator of $\gamma \log \rho$, hence of
+          $\gamma$.
+  \end{itemize}
+
+  \TODO{Board steps:
+        (1) Start from $\E Y_i = a_0\, i^{\gamma}\, \exp(a_1/i + \phi_1(i)/i^2)$.
+        (2) Take log: $\log \E Y_i = \log a_0 + \gamma \log i + a_1/i + \phi_1(i)/i^2$.
+        (3) Substitute $i = \rho^k$: $\log i = k \log \rho$, $1/i = \rho^{-k}$.
+        (4) Box the result. Highlight that the geometric grid
+        $\rho^k$ is what makes the correction decay
+        \emph{exponentially fast} in $k$ --- the whole reason for
+        using a geometric scale schedule.}
 \end{frame}
 
 % =====================================================================
