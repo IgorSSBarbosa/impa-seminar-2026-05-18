@@ -476,26 +476,104 @@
 % target: ≈ 6 min
 % =====================================================================
 
-\begin{frame}{The OLS slope estimator}
-  \TODO{$\hat\beta = \sum_{k=m_0+1}^{m_0+m} w_{k,m}\,
-        \log\overline Y_{\rho^k}$
-        with $w_{k,m} = \dfrac{12\big(k - m_0 - (m+1)/2\big)}{m(m^2-1)}$.
-        $w$ is the OLS coefficient on $k$.}
+\begin{frame}{Linear regression}
+  Data: $\big(k,\, \log \overline Y_{\rho^k}\big)$ for
+  $k = m_0 + 1, \ldots, m_0 + m$.
+
+  \vspace{0.4em}
+  The \textbf{ordinary least squares} (OLS) slope has the closed form
+  \[
+    \hat\beta \;=\; \sum_{k\, =\, m_0 + 1}^{m_0 + m}
+        w_{k,m}\, \log \overline Y_{\rho^k},
+    \qquad
+    w_{k,m} \;=\; \dfrac{12\,\big(k - m_0 - (m+1)/2\big)}{m\,(m^2 - 1)}.
+  \]
+
+  Hence the estimator of the target exponent:
+  \[
+    \hat\gamma \;=\; \dfrac{\hat\beta}{\log \rho}.
+  \]
+
+  \TODO{The weights $w_{k,m}$ are exactly the closed-form OLS
+        coefficients for fitting a line to equally-spaced abscissas
+        $k$. They are linear in $k$, symmetric about the midpoint
+        $m_0 + (m+1)/2$, and have two key identities (next slide).
+        Two free knobs in the estimator:
+        $m_0$ --- how many small-$r$ scales to drop (bias control),
+        and $m$ --- window width (variance control). Both are tuned
+        in §6.}
 \end{frame}
 
 \begin{frame}{The three-part split}
-  \TODO{$\log\overline Y_{\rho^k} = \log\E Y_{\rho^k}
-        + \log\big(\overline Y_{\rho^k}/\E Y_{\rho^k}\big)$.
-        Combine: $\hat\beta - \beta = R(m,m_0) + S_{n,m} + Q_{n,m}$.
-        $R$ = deterministic finite-size bias; $S$ = linear stochastic
-        (CLT-able); $Q$ = quadratic Taylor remainder.}
+  \textbf{Step 1 --- algebraic identity:}
+  \[
+    \log \overline Y_{\rho^k}
+      \;=\;
+      \log \E Y_{\rho^k}
+      \;+\;
+      \log\!\Big(\dfrac{\overline Y_{\rho^k}}{\E Y_{\rho^k}}\Big).
+  \]
+
+  \textbf{Step 2 --- Taylor-expand the log:} let
+  $x_k = \overline Y_{\rho^k}/\E Y_{\rho^k} - 1$. On the event
+  $\{|x_k| \le 1/2\}$,
+  $\log(1 + x_k) = x_k - \tfrac12 x_k^2 + O(x_k^3).$
+
+  \textbf{Step 3 --- apply $\hat\beta = \sum_k w_{k,m}\,(\cdot)$ and collect:}
+  \[
+    \boxed{\;
+      \hat\beta - \beta
+        \;=\;
+        \underbrace{R(m, m_0)}_{\text{finite-size bias}}
+        \;+\;
+        \underbrace{S_{n,m}}_{\text{linear stochastic}}
+        \;+\;
+        \underbrace{Q_{n,m}}_{\text{quadratic remainder}}\, , \;}
+  \]
+  with $\beta = \gamma \log \rho$. $R$ is the OLS slope of the
+  deterministic correction (from §3); $S$ is the OLS slope of
+  $\{x_k\}$; $Q$ is the OLS slope of $\{-\tfrac12 x_k^2 + \cdots\}$.
+
+  \TODO{The whole §5 proof is one sentence: control $R$, $S$, $Q$
+        separately. $R$ is deterministic --- killed by the choice of
+        $m_0$. $S$ goes through Lindeberg--Feller (a CLT). $Q$
+        vanishes faster than the CLT rate on the good event
+        $\{|x_k| \le 1/2\}$; the bad event has exponentially small
+        probability.}
 \end{frame}
 
 \begin{frame}{Linear regression as a linear functional}
-  \TODO{Visual: $\hat\beta$ is a linear combination of the
-        $\log\overline Y_{\rho^k}$'s with weights $w_{k,m}$ that sum
-        to zero and integrate against $k$ to one. This is why the CLT
-        machinery is applicable.}
+  Recall $\;\hat\beta \;=\; \displaystyle\sum_{k} w_{k,m}\,
+        \log \overline Y_{\rho^k}\;$ --- a
+  \textbf{deterministic linear combination} of the
+  $\log \overline Y_{\rho^k}$'s.
+
+  \vspace{0.4em}
+  Two weight identities (direct computation from the closed form):
+  \begin{itemize}
+    \item $\displaystyle \sum_{k = m_0 + 1}^{m_0 + m} w_{k,m}
+              \;=\; 0$
+          \hfill (kills any constant offset, e.g.\ $\log a_0$)
+    \item $\displaystyle \sum_{k = m_0 + 1}^{m_0 + m} k\, w_{k,m}
+              \;=\; 1$
+          \hfill (picks out the slope coefficient)
+  \end{itemize}
+
+  \vspace{0.4em}
+  Useful consequence (variance scaling):
+  \[
+    \sum_{k = m_0 + 1}^{m_0 + m} w_{k,m}^{\,2}
+      \;\asymp\; \dfrac{1}{m^{3}}.
+  \]
+
+  \TODO{Linear functionals of random variables commute with the
+        CLT, so once we know each summand obeys a CLT we get a CLT
+        for $\hat\beta$ for free. The identity
+        $\sum w_{k,m}^2 \asymp 1/m^3$ is where the $\sqrt{nm^3}$
+        rate of the main theorem comes from:
+        $\Var \hat\beta \approx \Var(\log \overline Y) \cdot
+        \sum w^2 \asymp (1/n) \cdot (1/m^3)$, so the standard
+        error is $\asymp 1/\sqrt{nm^3}$.}
 \end{frame}
 
 % =====================================================================
