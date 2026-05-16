@@ -596,36 +596,130 @@
 % =====================================================================
 
 \begin{frame}{Main theorem}
-  \TODO{Under $(2+\delta)$-moment, bounded $\phi_j$, and variance
-        convergence:
-        $\sqrt{n m^3}\,(\hat\gamma - \gamma)\;\xrightarrow{\;d\;}\;
-        \mathcal N\!\Big(0,\, \tfrac{12\sigma_\infty^2}{\log^2\rho}\Big).$
-        Rate $\sqrt{nm^3}$ combines $n$ trials and $m$ scales.}
+  \textbf{Setting.} $Y^{(1)}_i, \ldots, Y^{(n)}_i$ i.i.d.\ replicas of
+  $Y_i$ with $\E Y_i = a_0 i^\gamma \exp(a_1/i + \phi(i)/i^2)$,
+  $\phi$ bounded. Scales $i = \rho^k$, $k = m_0+1, \ldots, m_0+m$.
+  Let $\sigma_k^2 = \Var(\log \overline Y_{\rho^k})$ and assume
+  $n m^3 \sum_k w_{k,m}^2\, \sigma_k^2 \to \sigma_\infty^2$.
+
+  \vspace{0.4em}
+  \begin{block}{Theorem (CLT for the log--log estimator)}
+    Assume the $(2+\delta)$-moment Lyapunov condition holds for the
+    weighted array. If $n, m \to \infty$ with $\rho^{m_0} \gg
+    m\sqrt{m/n}$, then
+    \[
+      \sqrt{n\, m^{\,3}}\,\bigl(\hat\gamma - \gamma\bigr)
+        \;\xrightarrow{\,d\,}\;
+        \mathcal N\!\Bigl(\,0,\;
+        \tfrac{12\,\sigma_\infty^{\,2}}{\log^{\,2}\!\rho}\,\Bigr).
+    \]
+  \end{block}
+
+  \vspace{0.2em}
+  {\footnotesize\textbf{Reading the rate.} $\sqrt{n}$ from $n$
+  replicas, the extra $\sqrt{m^{3}}$ from $\sum w_{k,m}^2 \asymp
+  1/m^3$ (last slide of §4) --- using more scales \emph{accelerates}
+  the CLT.}
 \end{frame}
 
-\begin{frame}{Proof sketch — decomposition}
-  \TODO{Recall $\hat\beta - \beta = R + S + Q$. Treat each piece
-        separately. Strategy: $R \to 0$ via choice of $m_0$ (§6);
-        $S$ drives the CLT; $Q$ vanishes faster than the CLT rate.}
+\begin{frame}{Proof strategy}
+  Recall the three-part split (§4):
+  \[
+    \hat\beta - \beta \;=\;
+        \underbrace{R(m, m_0)}_{\text{deterministic bias}}
+        \;+\;
+        \underbrace{S_{n,m}}_{\text{linear stochastic}}
+        \;+\;
+        \underbrace{Q_{n,m}}_{\text{quadratic remainder}}\, .
+  \]
+
+  \vspace{0.4em}
+  Multiply by $\sqrt{n\, m^{\,3}}$ and treat each piece:
+  \begin{itemize}
+    \item $\sqrt{n m^3}\, S_{n,m}\;\xrightarrow{\,d\,}\;\mathcal N(0,
+          12\sigma_\infty^2)$ \hfill (Lindeberg--Feller)
+    \item $\sqrt{n m^3}\, Q_{n,m}\;\xrightarrow{\,p\,}\; 0$
+          \hfill (good event $+$ moment bound)
+    \item $\sqrt{n m^3}\, R(m,m_0)\;\to\; 0$
+          \hfill (deterministic, controlled by $m_0$)
+  \end{itemize}
+
+  \vspace{0.4em}
+  Divide by $\log\rho$ ($\hat\gamma = \hat\beta/\log\rho$): variance
+  becomes $12\sigma_\infty^2/\log^2\rho$. \qed (modulo three lemmas.)
 \end{frame}
 
-\begin{frame}{Proof sketch — $S_{n,m}$ via Lindeberg--Feller}
-  \TODO{$S_{n,m}$ is a triangular array of weighted sums. Verify the
-        Lyapunov $(2+\delta)$-condition $\Rightarrow$ CLT. State the
-        limiting variance $12\sigma_\infty^2/\log^2\rho$.}
+\begin{frame}{$S_{n,m}$ via Lindeberg--Feller}
+  $S_{n,m}$ is the OLS slope applied to the centred stochastic part:
+  \[
+    S_{n,m} \;=\; \sum_{k = m_0+1}^{m_0+m} w_{k,m}\,
+        \bigl(\overline{\xi}_k - \E\overline{\xi}_k\bigr),
+    \qquad
+    \overline{\xi}_k = \overline Y_{\rho^k}/\E Y_{\rho^k} - 1.
+  \]
+  A triangular array of \textbf{weighted i.i.d.\ averages}:
+  $n$ replicas inside each $\overline{\xi}_k$, $m$ weighted terms in $k$.
+
+  \vspace{0.4em}
+  \textbf{Variance.} Using independence across $k$ (the $Y_i$'s at
+  different scales are computed on disjoint annuli):
+  \[
+    \Var(S_{n,m}) \;=\; \tfrac{1}{n}
+        \sum_{k} w_{k,m}^{\,2}\, \Var(\xi_k)
+        \;\asymp\; \tfrac{1}{n m^3}\, \sigma_\infty^2.
+  \]
+
+  \vspace{0.2em}
+  \textbf{Lyapunov $(2+\delta)$-condition.} Under bounded
+  $(2+\delta)$-th moments of $\xi_k$,
+  $\sum_k |w_{k,m}|^{2+\delta} / (\sum_k w_{k,m}^2)^{1+\delta/2}\to 0$
+  --- the weights are not concentrated on a few $k$'s. Lindeberg--Feller
+  gives the CLT.
 \end{frame}
 
-\begin{frame}{Proof sketch — $Q_{n,m}$ Taylor remainder}
-  \TODO{$\log(\overline Y / \E Y) - (\overline Y / \E Y - 1)$ is
-        quadratic on the good event $\{|\overline Y - \E Y| \le
-        \tfrac12 \E Y\}$. Good-event probability $\to 1$ fast;
-        bad-event contribution is $o(1/\sqrt{nm^3})$.}
+\begin{frame}{$Q_{n,m}$ Taylor remainder vanishes faster}
+  From §4, Step 2: on the \textbf{good event}
+  $G_k = \{|\overline{\xi}_k| \le 1/2\}$,
+  $\;\log(1 + \overline{\xi}_k) - \overline{\xi}_k\;$ is bounded by
+  $\overline{\xi}_k^{\,2}$. So
+  \[
+    |Q_{n,m}| \;\le\; \sum_k |w_{k,m}|\, \overline{\xi}_k^{\,2}
+                 \;+\; \text{bad-event term}.
+  \]
+
+  \vspace{0.4em}
+  \textbf{Good event.} $\E\overline{\xi}_k^{\,2} \asymp \sigma_k^2/n$,
+  so $\E|Q_{n,m}^{\text{good}}| \lesssim (1/n)\sum_k |w_{k,m}|
+  \asymp 1/(nm)$. Multiplying by $\sqrt{nm^3}$ gives $\sqrt{m/n}\to 0$.
+
+  \vspace{0.4em}
+  \textbf{Bad event.} $\Pr(G_k^c) \le e^{-c n}$ (Hoeffding /
+  sub-Gaussian on bounded indicator sums for cluster occupation). So
+  the bad-event contribution to $\E|Q_{n,m}|$ decays exponentially
+  in $n$ --- negligible compared to the polynomial CLT scale.
 \end{frame}
 
-\begin{frame}{Proof sketch — $R(m,m_0)$ finite-size bias}
-  \TODO{Deterministic; $R \asymp \rho^{-m_0}/m^2$ under $J=1$ expansion.
-        Made negligible by choosing $m_0$ large enough — but not too
-        large, otherwise $S$ blows up. Foreshadow §6.}
+\begin{frame}{$R(m,m_0)$ finite-size bias --- the geometric scale wins}
+  $R(m,m_0)$ is the OLS slope of the \emph{deterministic} correction
+  (from the chalkboard linearisation):
+  \[
+    R(m,m_0) \;=\; \sum_{k = m_0+1}^{m_0+m} w_{k,m}\,
+        \Bigl(a_1\,\rho^{-k} + \phi(\rho^k)\,\rho^{-2k}\Bigr).
+  \]
+
+  \vspace{0.4em}
+  Both correction terms decay \textbf{geometrically} in $k$, and
+  $\sum_k |w_{k,m}| \asymp 1/m$. The leading $\rho^{-k}$ term, summed
+  against the symmetric weights, gives
+  \[
+    R(m,m_0) \;\asymp\; \frac{\rho^{-m_0}}{m^2}.
+  \]
+
+  \vspace{0.4em}
+  \textbf{Condition for negligibility:}
+  $\sqrt{nm^3}\cdot R \to 0\;\Longleftrightarrow\;
+  \rho^{m_0} \gg m\sqrt{m/n}$. This is exactly the assumption in the
+  theorem --- and the design knob $m_0$ that drives §6.
 \end{frame}
 
 % =====================================================================
