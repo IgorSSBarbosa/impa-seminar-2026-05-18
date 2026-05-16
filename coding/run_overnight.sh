@@ -1,7 +1,9 @@
 #!/bin/bash
 # Overnight scale-of-scales sweep.
-# Generates a big pool (N=4096, scales up to r=1024, 5000 trials) then runs the
-# regime sweep and error-vs-time analyses. Total: ~70 min.
+# Generates a big pool (clipped-BFS, arena 2049, scales up to r=1024, 5000
+# trials) then runs the regime sweep and error-vs-time analyses.
+# Wall clock with --method bfs: ~4 min for the pool (vs ~70 min on the old
+# union-find path). See coding/bench_l0.py for the L0 benchmark.
 
 set -euo pipefail
 
@@ -13,9 +15,9 @@ mkdir -p "${DATA_DIR}"
 LOG="${PRES}/overnight.log"
 echo "===== overnight run started $(date) =====" | tee "${LOG}"
 
-echo "[1/3] pool simulation: N=4096, 5000 trials, scales=2..1024" | tee -a "${LOG}"
+echo "[1/3] pool simulation: --method bfs, 5000 trials, scales=2..1024" | tee -a "${LOG}"
 python3 -u "${HERE}/simulators/fractal_dim_pool_sim.py" \
-    --n 4096 --trials 5000 \
+    --method bfs --trials 5000 \
     --scales 2 4 8 16 32 64 128 256 512 1024 \
     --seed 20260518 \
     --out "${DATA_DIR}/fractal_dim_pool.npz" 2>&1 | tee -a "${LOG}"
