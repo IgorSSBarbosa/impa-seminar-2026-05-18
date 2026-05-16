@@ -8,7 +8,7 @@
 %
 %  Build:  latexmk -pdf talk.tex
 % =====================================================================
-\documentclass[10pt, aspectratio=169]{beamer}
+\documentclass[10pt, aspectratio=169, xcolor={table}]{beamer}
 
 % ---------- theme ----------------------------------------------------
 %  Boadilla: white background, small footer with author/title/page —
@@ -245,6 +245,42 @@
 \section{Critical exponents, scaling, universality}
 % target: ≈ 10 min
 % =====================================================================
+
+\begin{frame}{The zoo of critical exponents}
+  \footnotesize
+  \begin{center}
+  \setlength{\tabcolsep}{4pt}
+  \renewcommand{\arraystretch}{1.35}
+  \begin{tabular}{c l c l c l}
+    \toprule
+    & \textbf{Function} & & \textbf{Behavior} & \textbf{Exp.} &
+      \textbf{Scaling rel.} \\
+    \midrule
+    \rowcolor{InvisibleBlue}
+    $\boldsymbol\Rightarrow$ & Cluster volume at $p_c$           & $V(r)$        & $\E V(r) \sim r^{d_f}$                                                  & $d_f$            & $d_f = d/(\tau - 1)$ \\
+    & Cluster number density           & $n(s,p)$      & $n(s,p) \sim s^{-\tau}\exp\!\big(-s\,|p-p_c|^{1/\sigma}\big)$            & $(\tau, \sigma)$ & --- \\
+    & Percolation probability          & $\theta(p)$   & $\theta(p) \sim (p-p_c)^{\beta}$                                         & $\beta$          & $\beta = (\tau - 2)/\sigma$ \\
+    \rowcolor{InvisibleBlue}
+    $\boldsymbol\Rightarrow$ & Mean cluster size                & $\chi^f(p)$   & $\chi^f(p) \sim |p-p_c|^{-\gamma}$                                       & $\gamma$         & $\gamma = (3 - \tau)/\sigma$ \\
+    & Number of clusters per vertex    & $\kappa(p)$   & $\kappa(p) \sim |p-p_c|^{2-\alpha}$                                      & $\alpha$         & $\alpha = 2 - (\tau-1)/\sigma$ \\
+    & Cluster moments                  & $\chi_k^f(p)$ & $\chi_{k+1}^f(p)/\chi_k^f(p) \sim |p-p_c|^{-\Delta}$                     & $\Delta$         & $\Delta = 1/\sigma = \gamma + \beta$ \\
+    \bottomrule
+  \end{tabular}
+  \end{center}
+
+  \vspace{0.4em}
+  \normalsize
+  \TODO{Verbal: this is the landscape --- five (six) observables, five
+        (six) exponents, all tied by scaling relations. We will work
+        on the two highlighted rows: the on-critical cluster volume
+        (the running example, exponent $d_f$) and, off-critical, the
+        mean cluster size (exponent $\gamma$). They are the easiest
+        case: \emph{positive} exponents of the $r^\beta$ family with
+        $\beta > 0$. The same statistical machinery lifts to the rest
+        with extra work. Hyperscaling $d_f = d/(\tau-1)$ to be
+        verified before the talk. Source: Stauffer 1979
+        \cite{bigCluster}.}
+\end{frame}
 
 \begin{frame}{Two anchor observables}
   (a) cluster volume $\E V(r) \sim r^{d_f}$ at $p = p_c$.
