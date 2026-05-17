@@ -51,15 +51,8 @@
 \usepackage[backend=biber, style=numeric]{biblatex}
 \addbibresource{refs.bib}
 
-% Short author-year citation: produces "[Name'YY]" inline.
-% Two-arg form \citeyy{key}{display}: every use emits a \hypertarget
-% so the References frame can \hyperlink back to the citation site.
-% Hyperref will warn "destination with same identifier already exists"
-% if a key is cited more than once — that's a harmless warning; the
-% back-link still resolves (to one of the citation sites).  The
-% references slide is curated manually, so no biblatex tracking is
-% needed.
-\newcommand{\citeyy}[2]{\hypertarget{cite:#1}{[#2]}}
+% Citations are inlined as "[Name'YY]" — the References slide is
+% curated manually, so no biblatex tracking is needed.
 
 \graphicspath{{../images/}}
 
@@ -180,7 +173,7 @@
                     {Broadbent_Hammersley\(1957\).pdf}
   \end{center}
   \note{%
-    Broadbent \& Hammersley \citeyy{broadbent}{Broadbent \& Hammersley'57}
+    Broadbent \& Hammersley [Broadbent \& Hammersley'57]
     wanted to model a gas mask: a porous carbon granule with random
     defects. They threw away \textbf{everything} physical except one
     number --- the density $p$ of \textbf{open} sites.\par\smallskip
@@ -196,7 +189,7 @@
 \end{frame}
 
 \demoframe{SIMULATION}{run - \texttt{perc\_interactive.py}\\[0.4em]
-  {\footnotesize\normalfont based on the book \citeyy{malthe}{Malthe-S\o renssen'24}}}
+  {\footnotesize\normalfont based on the book [Malthe-S\o renssen'24]}}
 
 \begin{frame}{Phase transitions everywhere}
   \begin{itemize}
@@ -236,7 +229,7 @@
 \end{frame}
 
 \demoframe{GIF}{run - \texttt{lattices\_merged.gif}\\[0.4em]
-  {\footnotesize\normalfont based on the book \citeyy{malthe}{Malthe-S\o renssen'24}}}
+  {\footnotesize\normalfont based on the book [Malthe-S\o renssen'24]}}
 
 \begin{frame}{Defining the critical parameter $p_c$}
   Fix a lattice. Let
@@ -274,7 +267,7 @@
   \TODO{Higher vertex degree means it is easier for the cluster to
         grow, and so $p_c$ is lower. Triangular $p_c = 1/2$ is
         \textbf{exact} (Sykes--Essam duality); square is only known
-        numerically. See \citeyy{grimmett}{Grimmett'99}.}
+        numerically. See [Grimmett'99].}
 \end{frame}
 
 % =====================================================================
@@ -314,7 +307,7 @@
         case: \textbf{positive} exponents of the $r^\beta$ family with
         $\beta > 0$. The same statistical machinery lifts to the rest
         with extra work. Hyperscaling $d_f = d/(\tau-1)$ to be
-        verified before the talk. Source: \citeyy{stauffer}{Stauffer'79}.}
+        verified before the talk. Source: [Stauffer'79].}
 \end{frame}
 
 \begin{frame}{Two anchor observables}
@@ -962,7 +955,7 @@
   no estimator can do polynomially better.
 
   \vspace{0.4em}
-  \footnotesize Closely related: \citeyy{Carpentier \& Kim'15} prove
+  \footnotesize Closely related: [Carpentier \& Kim'15] prove
   the analogous rate for the tail coefficient of \emph{second-order
   Pareto} distributions, with essentially the same two-point KL
   construction.
@@ -970,12 +963,12 @@
 
 \begin{frame}{Proof idea --- two-point reduction}
   \textbf{We adapt the general two-point minimax lemma of Rogers'
-  lecture notes \citeyy{Rogers'18} to our log--log class
+  lecture notes [Rogers'18] to our log--log class
   $\mathcal{P}$.} Pick \emph{two} candidate models
   $\mathbb{X},\mathbb{Y}\in\mathcal{P}$ whose parameters $\gamma$
   differ by $s$. The minimax risk is lower-bounded by separating
   these two:
-  \begin{block}{Two-point lemma\hfill\normalfont\footnotesize(Rogers \citeyy{Rogers'18}, Thm.~1)}
+  \begin{block}{Two-point lemma\hfill\normalfont\footnotesize(Rogers [Rogers'18], Thm.~1)}
     \[
       \inf_{\hat\gamma}\sup_{\mathbb{W}\in\mathcal{P}}
         \E_{\mathbb{W}}\bigl[(\hat\gamma - \gamma)^{\,2}\bigr]
@@ -1093,17 +1086,16 @@
 
 \begin{frame}{References}
   \footnotesize
-  Click any tag to jump back to the slide where it is cited.
   \begin{itemize}\setlength{\itemsep}{3pt}
-    \item \hyperlink{cite:broadbent}{[Broadbent \& Hammersley'57]}
+    \item {}[Broadbent \& Hammersley'57]
           S.~R.~Broadbent and J.~M.~Hammersley.
           \emph{Percolation processes: I.~Crystals and mazes.}
           Math.\ Proc.\ Camb.\ Phil.\ Soc.\ \textbf{53}(3), 629--641, 1957.
-    \item \hyperlink{cite:stauffer}{[Stauffer'79]}
+    \item {}[Stauffer'79]
           D.~Stauffer.
           \emph{Scaling theory of percolation clusters.}
           Physics Reports \textbf{54}(1), 1--74, 1979.
-    \item \hyperlink{cite:grimmett}{[Grimmett'99]}
+    \item {}[Grimmett'99]
           G.~Grimmett.
           \emph{Percolation} (2nd ed.).
           Grundlehren \textbf{321}, Springer, 1999.
@@ -1115,11 +1107,11 @@
           A.~W.~van der Vaart.
           \emph{Asymptotic Statistics.}
           Cambridge Univ.\ Press, 1998.
-    \item \hyperlink{cite:rogers}{[Rogers'18]}
+    \item {}[Rogers'18]
           J.~Rogers.
           \emph{Information Theoretic Minimax Lower Bounds} (lecture notes), 2018.
           \href{https://jenniferbrennan.github.io/resources/Minimax_Lower_Bound_Notes.pdf}{[pdf]}
-    \item \hyperlink{cite:carpentier}{[Carpentier \& Kim'15]}
+    \item {}[Carpentier \& Kim'15]
           A.~Carpentier and A.~K.~H.~Kim.
           \emph{Adaptive and minimax optimal estimation of the tail coefficient.}
           Statistica Sinica \textbf{25}(3), 1133--1144, 2015.
@@ -1127,7 +1119,7 @@
           P.~L.~Leath.
           \emph{Cluster size and boundary distribution near percolation threshold.}
           Phys.\ Rev.\ B \textbf{14}(11), 5046--5055, 1976.
-    \item \hyperlink{cite:malthe}{[Malthe-S\o renssen'24]}
+    \item {}[Malthe-S\o renssen'24]
           A.~Malthe-S\o renssen.
           \emph{Percolation Theory Using Python.}
           Springer Nature, 2024.
