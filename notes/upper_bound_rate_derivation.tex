@@ -1,0 +1,510 @@
+\documentclass[11pt]{article}
+\usepackage[a4paper, margin=2.2cm]{geometry}
+\usepackage{amsmath, amssymb, amsthm, mathtools}
+\usepackage{bbm}
+\usepackage{hyperref}
+\usepackage{microtype}
+
+\newcommand{\E}{\mathbb{E}}
+\newcommand{\Var}{\operatorname{Var}}
+\renewcommand{\P}{\mathbb{P}}
+\DeclareMathOperator*{\argmin}{argmin}
+
+\theoremstyle{plain}
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{corollary}[theorem]{Corollary}
+
+\theoremstyle{definition}
+\newtheorem{remark}[theorem]{Remark}
+\newtheorem{definition}[theorem]{Definition}
+
+\title{Upper bound on $\E[(\hat\gamma-\gamma)^{\,2}]$ under a budget constraint\\[0.3em]
+{\large Notes accompanying §7, ``What rate does the log--log plot achieve?''}}
+\author{IMPA seminar 2026-05-18 --- supplementary notes}
+\date{Last edited 2026-05-17}
+
+\begin{document}
+\maketitle
+
+\paragraph{Purpose.}
+The §7 motivation slide claims that, under a CLT-admissible schedule
+$(m_0(B), m(B), n(B))$ saturating a simulation budget $B$, the
+log--log plot estimator $\hat\gamma$ satisfies
+\[
+  \E\bigl[(\hat\gamma - \gamma)^{\,2}\bigr]
+    \;\le\; C\,B^{-\,2/(d+2)}\,\cdot\,\mathrm{polylog}(B).
+\]
+These notes spell out one such schedule and verify the bound term by
+term. The CLT itself (Theorem~3 of the paper, ``Main theorem'' frame
+in §5) is taken as a black box; this is purely the rate-extraction
+calculation.
+
+\section{Setup and notation}\label{sec:setup}
+
+Fix a scaling factor $\rho \in \mathbb{N}_{\ge 2}$ and a sequence of
+observables $(Y_L)_{L\ge 1}$ on a $d$-dimensional lattice satisfying
+the talk's assumptions (A0)--(A3). In particular,
+\begin{description}
+  \item[(A1)] $\E Y_L = a_0\,L^{\gamma}\exp\!\bigl(a_1\,L^{-1} + \phi(L)\,L^{-2}\bigr)$ with $\phi$ bounded.
+  \item[(A2)] $\E|\xi_L|^{2+\delta}$ and $\E|\log\xi_L|^{2+\delta}$ are uniformly bounded in $L$, where $\xi_L = Y_L/\E Y_L$.
+  \item[(A3)] $\sigma_k^{\,2} := \Var(\log\xi_{\rho^k}) \to \sigma_\infty^{\,2}\in(0,\infty)$.
+\end{description}
+
+The estimator is the OLS slope on $\{(\log\rho^{k}, \log\bar Y_{\rho^{k}})\}_{k=m_0+1}^{m_0+m}$,
+where $\bar Y_{\rho^k}$ is the empirical mean of $n$ i.i.d.\ copies of
+$Y_{\rho^k}$. Writing $w_{k,m} = 12(k-m_0-(m+1)/2)/(m(m^2-1))$ for the
+shift-invariant regression weights,
+
+\paragraph{Notation warning (presentation vs.\ article).}
+In the talk slides and the simulation code, $m$ denotes the
+\emph{window width} (number of scales fed into OLS) and $m_0$ the
+number of dropped scales, so the largest scale used is $\rho^{m_0+m}$.
+In the companion paper (\texttt{research/article.tex}) the letter $m$
+is instead reserved for that \emph{largest scale} --- in our notation
+$m_{\text{article}} = m_0 + m$ and the window width is
+$m_{\text{article}} - m_0$. These notes follow the presentation
+convention throughout. Reader of the article: substitute
+$m \mapsto m - m_0$ in the OLS weights to translate. the §4 three-part split is
+\begin{equation}\label{eq:split}
+  \hat\gamma - \gamma
+  \;=\;
+  \underbrace{\tfrac{1}{\log\rho}\,R(m,m_0)}_{\text{deterministic bias}}
+  \;+\;
+  \underbrace{\tfrac{1}{\log\rho}\,S_{n,m}}_{\text{linear stochastic}}
+  \;+\;
+  \underbrace{\tfrac{1}{\log\rho}\,Q_{n,m}}_{\text{Taylor remainder}}.
+\end{equation}
+
+\section{The cost model and the simulation budget}\label{sec:budget}
+
+\begin{definition}[cost model]
+A single trial $Y_L^{(i)}$ at scale $L = \rho^{k}$ costs
+$\asymp L^{\,d}$ elementary operations, where $d$ is the per-trial
+cost exponent of the simulator. Examples:
+\begin{itemize}
+  \item Arena BFS in §6: $d = 2$ (the BFS allocates an $L\times L$ grid).
+  \item Leath lazy-growth (appendix / future work): $d = d_f \approx 1.896$
+        for 2-D site percolation (BFS visits only the cluster).
+\end{itemize}
+\end{definition}
+
+\begin{definition}[budget]\label{def:budget}
+If $n$ replicas are run at every scale $\rho^{k}$ for $k=m_0+1,\dots,m_0+m$,
+the total simulation cost is
+\[
+  \sum_{k=m_0+1}^{m_0+m} n\,\rho^{kd}
+  \;\le\; n\,\rho^{(m_0+m)d}\cdot\frac{1}{1-\rho^{-d}}
+  \;\eqsim\; n\,\rho^{(m_0+m)d}.
+\]
+We therefore define the \emph{simulation budget} as
+\(
+  B(n, m, m_0) \;:=\; n\,\rho^{(m_0+m)d}.
+\)
+\end{definition}
+
+\section{The schedule}\label{sec:schedule}
+
+For a given target budget $B$, set
+\begin{equation}\label{eq:schedule}
+  m_0(B) \;:=\; \Bigl\lfloor \tfrac{1}{d+2}\log_\rho\!B\Bigr\rfloor,
+  \qquad
+  m(B)   \;:=\; \lceil \log_\rho\!\log B\rceil,
+  \qquad
+  n(B)   \;:=\; \bigl\lfloor B \,/\, \rho^{(m_0(B)+m(B))d}\bigr\rfloor.
+\end{equation}
+We treat $B$ as large enough that $m_0(B) \ge 1$, $m(B) \ge 3$ and
+$n(B) \ge 2$ (all three hold once $\log_\rho B \ge \rho^{3(d+2)}$, say).
+
+For brevity write $m_0, m, n$ for $m_0(B), m(B), n(B)$. The next two
+lemmas collect the asymptotics we will use below.
+
+\begin{lemma}[asymptotics of the schedule]\label{lem:asymp}
+As $B\to\infty$:
+\begin{enumerate}
+  \item $\rho^{-m_0} \;=\; B^{-1/(d+2)}\,\rho^{\,O(1)}$;
+  \item $m \;\asymp\; \log\log B$;
+  \item $\rho^{(m_0+m)d} \;\eqsim\; B^{d/(d+2)}\,(\log B)^{d}$,
+        hence $n \;\eqsim\; B^{\,2/(d+2)}\,(\log B)^{-d}$.
+\end{enumerate}
+\end{lemma}
+
+\begin{proof}
+(1) follows from $|m_0 - (1/(d+2))\log_\rho B| \le 1$.
+(2) From $\lceil\log_\rho\log B\rceil$.
+(3) $\rho^{(m_0+m)d} = \rho^{m_0 d}\cdot\rho^{m d}
+   = B^{d/(d+2)}\rho^{O(1)}\cdot(\log B)^{d}\rho^{O(1)}$, and then
+   $n = B/\rho^{(m_0+m)d}\cdot(1+O(\rho^{-(m_0+m)d}))$.
+\end{proof}
+
+\begin{lemma}[CLT hypotheses]\label{lem:CLT-hyp}
+The schedule \eqref{eq:schedule} satisfies
+$m/n \to 0$ and $\rho^{-m_0} \ll \sqrt{m/n}$.
+\end{lemma}
+
+\begin{proof}
+By Lemma~\ref{lem:asymp},
+$m/n \asymp \log\log B\cdot(\log B)^{d}/B^{2/(d+2)} \to 0$. For the
+second hypothesis,
+\[
+  \frac{\rho^{-m_0}}{\sqrt{m/n}}
+  \;\asymp\;
+  \frac{B^{-1/(d+2)}}{\sqrt{\log\log B\cdot(\log B)^{d}\,B^{-2/(d+2)}}}
+  \;=\;
+  \bigl(\log\log B\bigr)^{-1/2}\,(\log B)^{-d/2}
+  \;\to\; 0.
+\]
+\end{proof}
+
+\section{Bias bound}\label{sec:bias}
+
+\begin{lemma}[deterministic bias]\label{lem:bias}
+Under (A1) there is a constant $C_R = C_R(a_1, \|\phi\|_\infty)$ such that
+for every $m\ge 3$ and $m_0\ge 1$,
+\begin{equation}\label{eq:bias-bound}
+  \bigl|R(m,m_0)\bigr|
+  \;\le\;
+  C_R\,\frac{\rho^{-m_0}}{m^{2}}.
+\end{equation}
+\end{lemma}
+
+\begin{proof}[Sketch (this is exactly the §5 ``$R$'' frame)]
+By definition $R(m,m_0) = \sum_{k=m_0+1}^{m_0+m} w_{k,m}\,
+\bigl(a_1\,\rho^{-k} + \phi(\rho^{k})\,\rho^{-2k}\bigr)$. Using
+shift-invariance of the weights ($w_{k+m_0,m} = w_{k,m}$, article
+Lemma~\ref{lem:asymp} (a)) and anti-symmetry $\sum_k w_{k,m} = 0$:
+\[
+  \sum_{k=m_0+1}^{m_0+m}\!\!\!\!\! w_{k,m}\,\rho^{-k}
+  = \rho^{-m_0}\!\!\sum_{\ell=1}^{m} w_{\ell,m}(\rho^{-\ell} - \rho^{-(m+1)/2}).
+\]
+Bounding $|\rho^{-\ell} - \rho^{-(m+1)/2}| \le \log\rho\,|\ell - (m+1)/2|$
+and using $\sum_\ell|w_{\ell,m}|\cdot|\ell-(m+1)/2| \le 1/m$ (direct
+computation from the closed form) gives the leading-term contribution
+$O(\rho^{-m_0}/m^{2})$. The $\rho^{-2k}$ term is similarly $O(\rho^{-2m_0}/m^{2})$
+and absorbed into the constant.
+\end{proof}
+
+Plugging the schedule into \eqref{eq:bias-bound}, by
+Lemma~\ref{lem:asymp}(1)--(2),
+\begin{equation}\label{eq:bias-rate}
+  \bigl|R(m,m_0)\bigr|^{2}
+  \;\le\;
+  C_R^{2}\,\frac{\rho^{-2m_0}}{m^{4}}
+  \;=\;
+  C_R^{2}\,B^{-2/(d+2)}\,\bigl(\log\log B\bigr)^{-4}\,\rho^{\,O(1)}.
+\end{equation}
+
+\section{Variance bound}\label{sec:variance}
+
+\begin{lemma}[stochastic variance]\label{lem:var}
+Under (A0)--(A3) and Lemma~\ref{lem:CLT-hyp}, there is a constant
+$C_S = 12\,\sigma_\infty^{\,2}/\log^{\,2}\rho \cdot (1+o(1))$ with
+\begin{equation}\label{eq:var-bound}
+  \Var\!\bigl(\hat\gamma\bigr)
+  \;=\;
+  \frac{C_S}{n\,m^{3}}\bigl(1+o(1)\bigr).
+\end{equation}
+\end{lemma}
+
+\begin{proof}[Sketch]
+By the §5 main theorem, $\sqrt{nm^{3}}\,(\hat\gamma - \gamma)
+\Rightarrow \mathcal{N}(0, 12\sigma_\infty^{\,2}/\log^{\,2}\rho)$; under the
+uniform $(2+\delta)$-moment assumption (A2) one also has $L^{2}$
+convergence of the variance.
+\end{proof}
+
+By Lemma~\ref{lem:asymp}(2)--(3),
+\begin{equation}\label{eq:var-rate}
+  \Var\!\bigl(\hat\gamma\bigr)
+  \;\le\;
+  \frac{C_S\,(1+o(1))}{n\,m^{3}}
+  \;\eqsim\;
+  C_S\,B^{-2/(d+2)}\,\frac{(\log B)^{d}}{(\log\log B)^{3}}.
+\end{equation}
+
+\section{Taylor remainder}\label{sec:taylor}
+
+The §5 frame on $Q$ gives
+\(
+  \E\,|Q_{n,m}|
+  \;\le\;
+  C_Q\,\bigl(\tfrac{1}{nm} + \tfrac{1}{n^{1+\delta/2}}\bigr),
+\)
+so $\E[Q_{n,m}^{\,2}] \le (C_Q')^{2}/(n^{2} m^{2})$ on the schedule
+\eqref{eq:schedule}. By Lemma~\ref{lem:asymp},
+\[
+  \frac{1}{n^{2}m^{2}}
+  \;\eqsim\;
+  B^{-4/(d+2)}\cdot(\log B)^{2d}\cdot(\log\log B)^{-2}
+  \;=\;
+  o\!\bigl(B^{-2/(d+2)}\bigr),
+\]
+so $\E[Q_{n,m}^{\,2}]$ is negligible compared to either of
+\eqref{eq:bias-rate}, \eqref{eq:var-rate}.
+
+\section{The MSE upper bound}\label{sec:mse}
+
+\begin{theorem}[upper bound on the MSE]\label{thm:upper}
+Under (A0)--(A3) and the schedule \eqref{eq:schedule}, there exists a
+constant $C = C(\rho, a_0, a_1, \|\phi\|_\infty, \sigma_\infty, M, \delta)$
+such that for every $B$ large enough,
+\begin{equation}\label{eq:main-upper}
+  \E\bigl[(\hat\gamma - \gamma)^{\,2}\bigr]
+  \;\le\;
+  C\,B^{-2/(d+2)}\,\frac{(\log B)^{d}}{(\log\log B)^{3}}.
+\end{equation}
+In particular, $\E[(\hat\gamma - \gamma)^{\,2}] = O(B^{-2/(d+2)+\varepsilon})$
+for every $\varepsilon>0$.
+\end{theorem}
+
+\begin{proof}
+By \eqref{eq:split} and Cauchy--Schwarz,
+\[
+  \E[(\hat\gamma - \gamma)^{\,2}]
+  \;\le\;
+  3\,\bigl( R(m,m_0)^{2}/\log^{2}\!\rho
+        + \Var(\hat\gamma)
+        + \E[Q_{n,m}^{\,2}]/\log^{2}\!\rho \bigr).
+\]
+Combine \eqref{eq:bias-rate}, \eqref{eq:var-rate} and §\ref{sec:taylor}.
+The variance term \eqref{eq:var-rate} dominates because
+$(\log B)^{d}/(\log\log B)^{3} \to \infty$ faster than
+$(\log\log B)^{-4}$.
+\end{proof}
+
+\begin{remark}[the polylog is genuine, but the power-law is sharp]
+The polylog factor in \eqref{eq:main-upper} is an artefact of
+choosing $m \asymp \log\log B$ (we picked the slowest growth
+compatible with Lyapunov in §5; a richer Lindeberg argument might let
+$m$ stay constant, reducing the variance polylog to a constant but
+potentially introducing different cost in the Taylor term). The
+\emph{power-law exponent} $-2/(d+2)$ is sharp: §7's lower bound
+proves no schedule and no estimator can do polynomially better.
+\end{remark}
+
+\begin{remark}[heuristic balancing]
+The exponent $1/(d+2)$ for $m_0$ comes from balancing the only two
+exponents in $B$ that move with $m_0$ (holding $m$ slowly growing):
+the bias squared is $\rho^{-2m_0}$ and, with budget saturation
+$n = B/\rho^{(m_0+m)d}$, the variance is $\rho^{m_0 d}/B$ (times
+polylog from $m$). Setting $\rho^{-2m_0} = \rho^{m_0 d}/B$ gives
+$\rho^{m_0(d+2)} = B$, i.e.\ $m_0 = \log_\rho B/(d+2)$.
+\end{remark}
+
+\begin{remark}[on the choice of $m$]
+The polylog factor in \eqref{eq:main-upper} comes entirely from
+choosing $m \asymp \log\log B$. The next section shows that holding
+$m$ \emph{constant} (in particular $m=2$, the smallest legal OLS
+window and the regime used at the right end of the masterpiece plot)
+eliminates the polylog factor and matches the lower bound at the
+power-law level. The cost is that the §5 CLT no longer applies
+verbatim --- we instead control $\E[(\hat\gamma-\gamma)^{2}]$ by
+direct moment computation.
+\end{remark}
+
+\section{The constant-$m$ regime}\label{sec:const-m}
+
+In this section $m$ is held constant ($m=m^{\ast}\ge 2$) while $m_0$
+and $n$ scale with $B$. The motivating cases are $m^{\ast}=2$ (the
+minimal regression window, two scales fed into OLS) and $m^{\ast}=3$
+(the smallest $m$ value swept in the masterpiece plot,
+\texttt{coding/masterpiece\_plot.py}).
+
+\subsection*{Why this regime is interesting}
+
+\begin{itemize}
+  \item It is the regime where the masterpiece plot's R4 schedule
+        ($m_0 = m-2$) and the small-$m$ end of every schedule
+        operate.
+  \item It \emph{saturates} the §7 lower bound up to constants:
+        we will show $\E[(\hat\gamma-\gamma)^{2}] \le C\,B^{-2/(d+2)}$
+        with no polylog factor (Theorem~\ref{thm:const-m} below).
+  \item The §5 CLT requires $m \to \infty$ (so the Lyapunov ratio of
+        the regression weights vanishes); for constant $m$ the
+        estimator no longer has a Gaussian limit at rate
+        $\sqrt{nm^{3}}$. But the MSE bound does not need a CLT --- it
+        only needs bias\,$+$\,variance control, which is what we
+        establish here.
+\end{itemize}
+
+\subsection*{The estimator for $m=2$}
+
+For $m^{\ast}=2$, $w_{m_0+1,2} = -1$ and $w_{m_0+2,2} = +1$
+(direct substitution into $w_{k,m} = 12(k-m_0-(m+1)/2)/(m(m^2-1))$).
+The estimator collapses to a \emph{two-point slope}:
+\begin{equation}\label{eq:two-point-estimator}
+  \hat\gamma_{2}
+  \;=\;
+  \frac{\log \bar Y_{\rho^{m_0+2}} - \log \bar Y_{\rho^{m_0+1}}}{\log\rho}.
+\end{equation}
+The weight identities $\sum w = 0$, $\sum k\,w = 1$ continue to hold,
+and $\sum_k w_{k,2}^{2} = 2$ (matches the formula $12/(m(m^{2}-1))$
+at $m=2$).
+
+\subsection*{Bias and variance, constant $m$}
+
+\begin{lemma}[bias, constant $m$]\label{lem:bias-const}
+For every $m^{\ast}\ge 2$ and $m_0 \ge 1$,
+\(
+  |R(m^{\ast}, m_0)| \le C_R(m^{\ast})\,\rho^{-m_0},
+\)
+where $C_R(m^{\ast})$ depends only on $m^{\ast}$ and the model
+constants $(a_1, \|\phi\|_\infty)$.
+\end{lemma}
+
+\begin{proof}
+Same computation as Lemma~\ref{lem:bias}, but the factor $1/m^{2}$
+becomes a constant when $m=m^{\ast}$ is fixed.
+\end{proof}
+
+\begin{lemma}[variance, constant $m$]\label{lem:var-const}
+Under (A0)--(A3), for every $m^{\ast}\ge 2$ and $m_0 \to \infty$,
+\begin{equation}\label{eq:var-const}
+  \Var\!\bigl(\hat\gamma_{m^{\ast}}\bigr)
+  \;=\;
+  \frac{V(m^{\ast})\,\sigma_\infty^{\,2}}{n\,\log^{2}\!\rho}
+  \,\bigl(1+o(1)\bigr),
+  \qquad
+  V(m^{\ast}) \;:=\; \sum_{k=m_0+1}^{m_0+m^{\ast}} w_{k,m^{\ast}}^{\,2}
+                 \;=\; \frac{12}{m^{\ast}(m^{\ast 2}-1)}.
+\end{equation}
+At $m^{\ast}=2$, $V(2) = 2$; at $m^{\ast}=3$, $V(3) = 1/2$.
+\end{lemma}
+
+\begin{proof}
+By independence across scales (different annuli, no shared $Y_i$'s),
+\(
+  \Var(\hat\beta_{m^{\ast}})
+  = \tfrac{1}{n}\sum_{k} w_{k,m^{\ast}}^{2}\,\Var(\log\xi_{\rho^k}).
+\)
+The shift-invariance of $w_{k,m}$ together with (A3) gives
+$\Var(\log\xi_{\rho^{k}}) = \sigma_\infty^{\,2}(1+o(1))$ as $m_0\to\infty$.
+The Taylor remainder is $O(1/n^{2})$ by the same bound as
+Section~\ref{sec:taylor} and is absorbed in the $o(1)$.
+\end{proof}
+
+\subsection*{Cost model, constant $m$}
+
+With $m=m^{\ast}$ constant, Definition~\ref{def:budget} gives
+\[
+  B(n, m^{\ast}, m_0)
+  \;=\; n\,\rho^{(m_0+m^{\ast})\,d}
+  \;\eqsim\; n\,\rho^{m_0 d}
+  \qquad(m^{\ast} \text{ constant}).
+\]
+
+\subsection*{Optimal schedule and main bound}
+
+\begin{theorem}[constant-$m$ MSE]\label{thm:const-m}
+Fix $m^{\ast}\ge 2$. With the schedule
+\begin{equation}\label{eq:const-m-schedule}
+  m_0(B) \;=\; \Bigl\lfloor \tfrac{1}{d+2}\log_\rho\!B \Bigr\rfloor,
+  \qquad
+  n(B) \;=\; \bigl\lfloor B \,/\, \rho^{(m_0+m^{\ast})\,d}\bigr\rfloor,
+\end{equation}
+there is a constant $C^{\ast} = C^{\ast}(m^{\ast}, \rho, d, a_1,
+\|\phi\|_\infty, \sigma_\infty)$ such that, for every $B$ large
+enough,
+\begin{equation}\label{eq:const-m-main}
+  \E\bigl[(\hat\gamma_{m^{\ast}} - \gamma)^{2}\bigr]
+  \;\le\; C^{\ast}\,B^{-\,2/(d+2)}.
+\end{equation}
+\end{theorem}
+
+\begin{proof}
+By the three-part split \eqref{eq:split} and $(a+b+c)^{2}\le 3(a^{2}+b^{2}+c^{2})$,
+\[
+  \E[(\hat\gamma_{m^{\ast}} - \gamma)^{2}]
+  \;\le\; 3\,\bigl(\tfrac{R(m^{\ast},m_0)^{2}}{\log^{2}\!\rho}
+                + \Var(\hat\gamma_{m^{\ast}})
+                + \tfrac{\E[Q_{n,m^{\ast}}^{2}]}{\log^{2}\!\rho}\bigr).
+\]
+Apply Lemmas~\ref{lem:bias-const}, \ref{lem:var-const} and the
+Section~\ref{sec:taylor} Taylor bound:
+\[
+  \E[(\hat\gamma_{m^{\ast}} - \gamma)^{2}]
+  \;\le\;
+  \frac{3\,C_R(m^{\ast})^{2}}{\log^{2}\!\rho}\,\rho^{-2m_0}
+  \;+\;
+  \frac{3\,V(m^{\ast})\,\sigma_\infty^{2}}{\log^{2}\!\rho}\cdot\frac{1}{n}
+  \;+\;
+  \frac{C'_{Q}}{n^{2}}.
+\]
+Plug in \eqref{eq:const-m-schedule}. Using $\rho^{m^{\ast}d} \asymp 1$:
+\begin{align*}
+  \rho^{-2m_0}  &\;\asymp\; B^{-2/(d+2)},\\
+  1/n           &\;\asymp\; \rho^{m_0 d}/B
+                \;\asymp\; B^{d/(d+2)-1} \;=\; B^{-2/(d+2)},\\
+  1/n^{2}       &\;\asymp\; B^{-4/(d+2)} \;=\; o\bigl(B^{-2/(d+2)}\bigr).
+\end{align*}
+The first two terms are of the same order $B^{-2/(d+2)}$, the third
+strictly smaller. Collect constants into $C^{\ast}$.
+\end{proof}
+
+\subsection*{Comparison with the $m\to\infty$ schedule}
+
+\begin{remark}[constant $m$ beats slowly-growing $m$]
+Compare Theorem~\ref{thm:const-m} with Theorem~\ref{thm:upper}:
+\[
+  \underbrace{\E[(\hat\gamma_{m^{\ast}}-\gamma)^{2}] \;\le\; C^{\ast}\,B^{-2/(d+2)}}_{\text{constant }m}
+  \qquad\text{vs.}\qquad
+  \underbrace{\E[(\hat\gamma-\gamma)^{2}] \;\le\; C\,B^{-2/(d+2)}\,\frac{(\log B)^{d}}{(\log\log B)^{3}}}_{m\,\asymp\,\log\log B}.
+\]
+The constant-$m$ rate is \emph{strictly tighter} --- it removes the
+polylog factor entirely and \textbf{matches the §7 lower bound up to
+multiplicative constants} (no $\log^{2} B$ gap). The price is that
+$\hat\gamma_{m^{\ast}}$ does not satisfy a CLT at rate
+$\sqrt{nm^{3}}$: the §5 hypothesis $m\to\infty$ fails. In particular
+$\sqrt{n}\,\rho^{-m_0} \to \rho^{d}$ along
+\eqref{eq:const-m-schedule}, so the deterministic bias does not
+become negligible relative to $1/\sqrt{n}$. We get a rate bound but
+not a limiting distribution.
+\end{remark}
+
+\begin{remark}[which $m^{\ast}$ minimises the constant?]
+The variance contribution scales as
+$V(m^{\ast}) = 12/(m^{\ast}(m^{\ast 2}-1))$, decreasing in $m^{\ast}$:
+$V(2) = 2$, $V(3) = 0.5$, $V(4) = 0.2$, $V(5) = 0.1$.
+The bias contribution scales as $C_R(m^{\ast})^{2}$, which from the
+proof of Lemma~\ref{lem:bias-const} satisfies $C_R(m^{\ast}) \asymp
+1/m^{\ast 2}$ (recover the original $1/m^{2}$ factor at constant
+scale). Hence both bias$^{2}$ and variance constants \emph{shrink}
+with $m^{\ast}$. The catch: at fixed budget $B$ and $m^{\ast}$
+growing, the budget constraint
+$n \asymp B\,\rho^{-(m_0+m^{\ast})d}$ forces $n$ to shrink by
+$\rho^{m^{\ast}d}$, exactly compensating the variance gain (this is
+how the slowly-growing-$m$ schedule of Sec.~\ref{sec:schedule}
+recovers a polylog). So at $m^{\ast}$ truly constant, $m^{\ast}=2$
+is fine; for a tighter constant one should pick the largest $m^{\ast}$
+that one is willing to call ``constant'' relative to the budget.
+\end{remark}
+
+\begin{remark}[CLT for constant $m^{\ast}$, separately]
+Although the §5 CLT (rate $\sqrt{nm^{3}}$) fails, a \emph{different}
+CLT applies: holding $m^{\ast}$ fixed and letting $m_0,n\to\infty$
+with $\sqrt{n}\,\rho^{-m_0}\to 0$ (a strict sub-saturation of the
+budget, $m_0 \gg \log_\rho B/(d+2)$), one has by Cramér--Wold
+\[
+  \sqrt{n}\,\bigl(\hat\gamma_{m^{\ast}} - \gamma\bigr)
+  \;\xRightarrow{\,d\,}\;
+  \mathcal{N}\!\Bigl(\,0,\;\tfrac{V(m^{\ast})\,\sigma_\infty^{2}}{\log^{2}\!\rho}\,\Bigr).
+\]
+This is the standard CLT for a finite linear combination of i.i.d.\
+sample means and requires neither Lyapunov nor Lindeberg. The price
+of asymptotic normality is the loss of MSE-rate-optimality: spending
+``too much'' budget on $m_0$ wastes simulation time on bias-killing.
+\end{remark}
+
+\begin{remark}[connection to the masterpiece plot R4 regime]
+In \texttt{coding/masterpiece\_plot.py} the schedule
+\texttt{min\_arm}: $m_0 = m - 2$ (i.e.\ window width
+$m^{\ast} = 2$ when read in the article's $m_{\text{article}}$
+convention) is the rightmost-on-the-budget-axis curve. The
+calculation above predicts it should have slope $-2/(d+2)$ on a
+log--log RMSE-vs-$B$ plot, with \emph{smaller multiplicative constant}
+than the slowly-growing schedules (R1--R3). Empirically: this is what
+the plot shows.
+\end{remark}
+
+\end{document}
