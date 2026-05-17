@@ -159,3 +159,65 @@ re-generate the pool / plots / talk material.
 - Pack `count_by_d` as `int32` (cluster never exceeds 2^31 sites in our range).
 - Use the radius information to short-circuit BFS once the cluster is
   confirmed fully inside r_max (peripheral frontier all unoccupied).
+
+## Open issues to address in the re-run
+
+### 1. Instrument per-block wall time
+
+The current pool meta only records `elapsed_seconds` and `bfs_cpu_seconds`
+aggregated over the **whole** 65k-trial pool. To produce the §8
+"$\langle|\hat d_f - d_f|\rangle$ vs. simulation time" plot we currently
+*derive* a per-cell wall-time from the theoretical budget
+$B = n\,\rho^{(m_0+m)d_f}$, calibrated by a single constant
+$c \approx 1.23 \times 10^{-8}$ s/budget-unit. That's only as honest as
+the cost model — the constant absorbs whatever the model is missing
+(arena reset overhead, RNG cost, cache effects).
+
+**What to do in the Leath rewrite:** record per-trial wall time
+(`time.perf_counter()` around the kernel call) and write it as an extra
+column / array alongside `V_pool`. Then `mae_vs_time_plot.py` can use
+actual measured time-per-block instead of a calibrated proxy.
+
+Per-trial timing is cheap (one `perf_counter` pair per trial,
+~100 ns of overhead vs. ≥ 1 ms of BFS work). Per-block aggregation
+is then `np.sum(trial_time[r*n:(r+1)*n])`. No change to plot script
+beyond reading the new array.
+
+### 2. Cross-scale independence violation
+
+The article's CLT assumes the per-scale averages $\bar Y_{\rho^k}$ are
+built from **independent** samples — one fresh pool of $n$ trials per
+scale. The pool simulator (both today's arena-BFS and the Leath
+replacement) does the opposite: one BFS realisation per trial yields
+$V(\rho^k)$ at **every** scale, so the per-scale averages are
+**correlated across $k$ within a trial**. The §6 / §8 plots silently
+pool over this correlation.
+
+This is the cheap thing to do (one trial gives all scales for free),
+and the schedule ranking on `fig_mae_vs_time.png` looks plausibly
+robust to it — but it is not what the theorem assumes.
+
+**What to do, in order of cost:**
+
+1. **Quantify the bias.** With the existing pool, compute the
+   sample covariance of $\log\bar Y_{\rho^k}$ across $k$ block-by-block.
+   If the off-diagonal entries are small relative to the diagonal, the
+   independence assumption is a mild lie and the existing plots stand.
+   If they are not, the variance reported by RMSE / MAE on
+   `fig_mae_vs_time.png` is biased downward and the ordering of
+   schedules may be affected at small budgets.
+
+2. **A small independent-pool run for comparison.** Build a side pool
+   that draws a **fresh** BFS realisation for each scale (so for
+   $m$ scales you pay $m \times$ more trials). At one or two cells of
+   the masterpiece grid, compare MAE-vs-time of the independent pool
+   to the correlated pool. Confirms (or denies) the visual claim that
+   the schedule ranking is robust.
+
+3. **A bigger fully-independent re-run.** Only if (1)+(2) show the
+   independence violation is materially distorting the conclusions.
+   Costs $m \approx 6$ times more wall-time at fixed budget.
+
+Note: in the §8 disclaimer slide we already flag this honestly, so
+the talk is not over-claiming. The remarks here are for the
+follow-up work, not for the talk itself.

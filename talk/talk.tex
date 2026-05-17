@@ -83,6 +83,8 @@
 
 % Notes-to-self — visible while drafting; will be stripped before the talk.
 \newcommand{\TODO}[1]{{\color{red}\textbf{[TODO]} #1}}
+% Final version: hide all \TODO notes from the rendered slides.
+\renewcommand{\TODO}[1]{}
 
 % Advisor / co-advisor (custom — Beamer has no built-ins for these).
 \newcommand{\theadvisor}{}
@@ -153,9 +155,8 @@
       \begin{enumerate}\setcounter{enumi}{3}
         \item The log--log estimator and its three-part split
         \item Main theorem: CLT for $\hat\gamma$
-        \item The role of $m_0$ and Wilson confidence intervals
         \item Lower bound and optimality
-        % \item (Optional) Closed-form sanity checks
+        \item $m_0$ choices empirically
         \item Wrap-up
       \end{enumerate}
     \end{column}
@@ -325,7 +326,7 @@
         Insert image: \texttt{fig\_running\_example.png}.}
 \end{frame}
 
-\begin{frame}{Why log--log linearises a power law (\& finite-size effects)}
+\begin{frame}{log--log linearises a power law (\& finite-size effects)}
   \begin{columns}[T,onlytextwidth]
     \begin{column}{0.55\textwidth}
       \centering
@@ -364,7 +365,7 @@
       \vspace{0.4em}
       \textbf{Remark.} The standard fix is to \textbf{drop the first
       $m_0$ scales} and fit the OLS line on the remaining $m$ points.
-      $m_0$ becomes the main design knob (§6).
+      $m_0$ becomes the main design knob (§7).
     \end{column}
   \end{columns}
 \end{frame}
@@ -384,12 +385,13 @@
 
 \demoframe{GIF}{run - \texttt{percolation\_meanfield.gif}}
 
-\begin{frame}{(Optional bridge to statistics) The classical CLT}
-  \TODO{$S_n \sim \sqrt{n}$ as a ``toy universality statement'':
-        exponent $1/2$ independent of step distribution (provided
-        $\Var < \infty$). Bridge from physicists' universality to
-        statisticians' universality.}
-\end{frame}
+% --- COMMENTED OUT: incomplete frame (no content drafted) ----------
+% \begin{frame}{(Optional bridge to statistics) The classical CLT}
+%   \TODO{$S_n \sim \sqrt{n}$ as a ``toy universality statement'':
+%         exponent $1/2$ independent of step distribution (provided
+%         $\Var < \infty$). Bridge from physicists' universality to
+%         statisticians' universality.}
+% \end{frame}
 
 % =====================================================================
 \section{From physics heuristic to statistical question}
@@ -555,7 +557,7 @@
   \vspace{0.4em}
   \begin{center}
     \footnotesize\itshape
-    The bias--variance picture above is a commom knowledge in the physics
+    The bias--variance picture above is common knowledge in the physics
     literature; the \textbf{compute-budget formalisation} that pins
     $(m_0, m, n)$ against a single resource constraint $B$ is, to our
     knowledge, new.
@@ -577,8 +579,8 @@
     \begin{tabular}{rl}
       % §4 & the log--log estimator and its three-part split\\
       §5 & a CLT for $\hat\gamma$ \\
-      §6 & the role of $m_0$ and Wilson confidence intervals\\
-      §7 & minimax lower bound --- the log--log plot is near-optimal\\
+      §6 & minimax lower bound --- the log--log plot is near-optimal\\
+      §7 & $m_0$ choices empirically\\
     \end{tabular}
   \end{center}
   \vfill
@@ -715,8 +717,9 @@
 
   \vspace{0.3em}
   \begin{block}{Theorem (Barbosa--Teixeira--Oliveira, 2026\textsuperscript{+})}
-    Under (A0)--(A3), if $n, m, m_0 \to \infty$ along any sequence
-    satisfying $m/n \to 0$, then
+    Under (A0)--(A3), if $m_0 \to \infty$ and $n m \to \infty$ with
+    $m/n \to 0$ (no separate growth requirement on $m$; constant $m$
+    is allowed), then
     \[
       \sqrt{n\, m^{\,3}}\,\bigl(\hat\gamma - \gamma\bigr)
         \;\xrightarrow{\,d\,}\;
@@ -787,7 +790,7 @@
   $(2+\delta)$-th moments of $\xi_k$,
   we can show
   \[
-    \frac{1}{s_{n,m}^{\,2+\delta}}\sum_{k=m_0+1}^{m}
+    \frac{1}{s_{n,m}^{\,2+\delta}}\sum_{k=m_0+1}^{m_0+m}
           \E\!\left[\bigl|w_{k,m}(\bar{\xi}_{k}-1)\bigr|^{2+\delta}\right]
     \;\xrightarrow[m,n\to\infty]{}\; 0.
   \]
@@ -842,44 +845,47 @@
 \end{frame}
 
 % =====================================================================
-\section{The role of $m_0$ and Wilson confidence intervals}
+% \section{The role of $m_0$ and Wilson confidence intervals}    % COMMENTED OUT: all frames were stubs; empirical comparison is now §7
 % target: ≈ 7 min
 % =====================================================================
 
-\begin{frame}{Why throw away the first $m_0$ scales}
-  \TODO{The first scales are the most biased; the OLS weights $w_{k,m}$
-        give them large lever arms. Dropping them kills the leading
-        $\rho^{-k}$ term in the expansion.}
-\end{frame}
-
-\begin{frame}{Wilson-style confidence interval}
-  \TODO{Four terms, each with its own rate:
-        $|\hat\gamma - \gamma| \le
-        \underbrace{C_1\rho^{-m_0}/m^2}_{\text{finite size}}
-        + \underbrace{C_2/(nm)}_{\text{Jensen good event}}
-        + \underbrace{C_3 \exp(-cn)}_{\text{bad event}}
-        + \underbrace{z_{1-\alpha/2}\,\sqrt{12\sigma_\infty^2/(\log^2\rho \cdot nm^3)}}_{\text{Gaussian}}.$
-        Each term decays at a different rate — the knob is $m_0$.}
-\end{frame}
-
-\begin{frame}{Empirical comparison of $m_0$ regimes}
-  \TODO{Embed \texttt{fig\_regime\_sweep.png} — $\hat d_f \pm$ SE
-        (band: $\pm$ std) for $m_0 = $ const / $\alpha m /
-        \tfrac12\log_\rho(nm^3)$.}
-\end{frame}
-
-\begin{frame}{Error vs.\ simulation time}
-  \TODO{Embed \texttt{fig\_error\_vs\_time.png}; legend slopes per
-        regime. Which $m_0$ schedule gives the best $|\mathrm{bias}|$
-        decay rate per second of compute?}
-\end{frame}
-
-\begin{frame}{The masterpiece plot — error vs.\ budget $B$}
-  \TODO{Embed L4 plot (to be produced): budget $B \in \{1,2,4,8,16\}$,
-        $m(B) = m_0 + \log_2 B$, three regimes (const, $\alpha=1/2$,
-        log-$\rho$). The ``which knob and how should you turn it''
-        slide.}
-\end{frame}
+% --- COMMENTED OUT: §6 stubs (no content drafted) ------------------
+% The §8 frame "<|d̂_f - d_f|> vs simulation time" effectively serves
+% as the §6 empirical-comparison slide.
+% \begin{frame}{Why throw away the first $m_0$ scales}
+%   \TODO{The first scales are the most biased; the OLS weights $w_{k,m}$
+%         give them large lever arms. Dropping them kills the leading
+%         $\rho^{-k}$ term in the expansion.}
+% \end{frame}
+%
+% \begin{frame}{Wilson-style confidence interval}
+%   \TODO{Four terms, each with its own rate:
+%         $|\hat\gamma - \gamma| \le
+%         \underbrace{C_1\rho^{-m_0}/m^2}_{\text{finite size}}
+%         + \underbrace{C_2/(nm)}_{\text{Jensen good event}}
+%         + \underbrace{C_3 \exp(-cn)}_{\text{bad event}}
+%         + \underbrace{z_{1-\alpha/2}\,\sqrt{12\sigma_\infty^2/(\log^2\rho \cdot nm^3)}}_{\text{Gaussian}}.$
+%         Each term decays at a different rate — the knob is $m_0$.}
+% \end{frame}
+%
+% \begin{frame}{Empirical comparison of $m_0$ regimes}
+%   \TODO{Embed \texttt{fig\_regime\_sweep.png} — $\hat d_f \pm$ SE
+%         (band: $\pm$ std) for $m_0 = $ const / $\alpha m /
+%         \tfrac12\log_\rho(nm^3)$.}
+% \end{frame}
+%
+% \begin{frame}{Error vs.\ simulation time}
+%   \TODO{Embed \texttt{fig\_error\_vs\_time.png}; legend slopes per
+%         regime. Which $m_0$ schedule gives the best $|\mathrm{bias}|$
+%         decay rate per second of compute?}
+% \end{frame}
+%
+% \begin{frame}{RMSE vs.\ budget $B$}
+%   \TODO{Embed L4 plot (to be produced): budget $B \in \{1,2,4,8,16\}$,
+%         $m(B) = m_0 + \log_2 B$, three regimes (const, $\alpha=1/2$,
+%         log-$\rho$). The ``which knob and how should you turn it''
+%         slide.}
+% \end{frame}
 
 % =====================================================================
 \section{Lower bound and optimality}
@@ -1024,18 +1030,48 @@
 \end{frame}
 
 % =====================================================================
-\section{(Optional) Closed-form sanity checks}
+\section{$m_0$ choices empirically}
 % target: ≈ 3 min (cut first if running long)
 % =====================================================================
 
-\begin{frame}{Bethe lattice}
-  \TODO{$\E Y_i$ has a closed form via Stirling; verify the expansion
-        used in §3 reproduces it.}
+\begin{frame}{A note on what follows}
+  \begin{alertblock}{Independence assumption is violated in the
+                     simulations}
+    Theory (this talk and the article): the per-scale averages
+    $\bar Y_{\rho^k}$ are built from \textbf{independent} samples
+    --- one fresh pool of $n$ trials per scale $k$.
+
+    \medskip
+    Simulations (next slide): we run \textbf{one} BFS pool and
+    read off the cluster mass at \emph{all} scales from each trial.
+    The same realisation contributes to every $\bar Y_{\rho^k}$, so
+    the per-scale averages are \textbf{correlated} across $k$ within
+    a trial.
+  \end{alertblock}
+
+  % \vspace{0.4em}
+  % \footnotesize Why we do it anyway: the correlated pipeline is
+  % $\rho^{m-1}\!\times$ cheaper than the independent one, and the
+  % qualitative ranking of $m_0$-schedules in the plot is robust to
+  % this. A proper independent-pool comparison is on the to-do list.
 \end{frame}
 
-\begin{frame}{Simple random walk}
-  \TODO{Return-to-origin observable; closes the loop back to the
-        classical-CLT analogy from §2.}
+\begin{frame}
+  \begin{center}
+    \includegraphics[width=0.65\linewidth, keepaspectratio]%
+                    {fig_mae_vs_time.png}
+  \end{center}
+
+  % \vspace{-0.4em}
+  % \footnotesize
+  % Mean absolute error of $\hat d_f$ across blocks, vs.\ estimated
+  % wall-time per cell (seconds, log), one panel per trial count $n$,
+  % four $m_0$-schedules overlaid:
+  % $m_0\!=\!1$ (baseline),
+  % $m_0\!=\!\lfloor m/2\rfloor$ (linear),
+  % $m_0\!=\!\lceil \tfrac12\log_\rho(nm^3)\rceil$ (CLT-optimal),
+  % $m_0\!=\!m-2$ (keep only the two largest scales --- the
+  % high-school slope of §7).
 \end{frame}
 
 % =====================================================================
@@ -1047,7 +1083,7 @@
   \begin{itemize}\setlength{\itemsep}{4pt}
     \item \textbf{Tune the best regime} in models with a
           \emph{known} critical exponent (the fractal dimension
-          $d_f$ of §6 is our calibration target; do the same for the
+          $d_f$ of §7 is our calibration target; do the same for the
           mean-cluster-size exponent $\gamma$, the percolation
           probability exponent $\beta$, \ldots).
     \item \textbf{Apply to models with unknown exponents.}
@@ -1149,15 +1185,16 @@
 % =====================================================================
 \appendix
 
-\begin{frame}{Appendix: pool simulation pipeline (L0--L4)}
-  \TODO{One-pager on the hierarchical simulation structure: L0 trial,
-        L1 mean, L2 slope, L3 replicas, L4 budget.
-        Reference \texttt{notes/simulation\_hierarchy.md}.}
-\end{frame}
-
-\begin{frame}{Appendix: numerical precision \& BFS speed-up}
-  \TODO{Box-clipped BFS vs.\ full Bernoulli + union-find; $20\times$
-        speed-up at $N=4096$. Reference \texttt{coding/bench\_l0.py}.}
-\end{frame}
+% --- COMMENTED OUT: appendix stubs (no content drafted) ------------
+% \begin{frame}{Appendix: pool simulation pipeline (L0--L4)}
+%   \TODO{One-pager on the hierarchical simulation structure: L0 trial,
+%         L1 mean, L2 slope, L3 replicas, L4 budget.
+%         Reference \texttt{notes/simulation\_hierarchy.md}.}
+% \end{frame}
+%
+% \begin{frame}{Appendix: numerical precision \& BFS speed-up}
+%   \TODO{Box-clipped BFS vs.\ full Bernoulli + union-find; $20\times$
+%         speed-up at $N=4096$. Reference \texttt{coding/bench\_l0.py}.}
+% \end{frame}
 
 \end{document}
