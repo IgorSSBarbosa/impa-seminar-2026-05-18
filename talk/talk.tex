@@ -190,8 +190,7 @@
   \vspace{0.6em}
   \textbf{Uniform coupling.} Draw one i.i.d.\ array
   $U_x \sim \mathrm{Unif}[0,1]$ once; for any $p$, declare site $x$
-  open iff $U_x \le p$. Same realisation, every $p$ simultaneously
-  $\Rightarrow$ monotone in $p$.
+  open iff $U_x \le p$. Same realisation, every $p$ simultaneously.
 
   \TODO{Perfect for the slider demo.
 
@@ -389,34 +388,100 @@
     \end{column}
   \end{columns}
 
-  \vspace{0.6em}
-  \textbf{Working hypothesis.} The population mean admits the
-  asymptotic expansion
+  \vspace{0.8em}
+  \textit{Two reasons our log--log reading can be off:}
+  \begin{itemize}
+    \item[(a)] $\overline V(r) \ne \E V(r)$ --- random fluctuations,
+               source of \textbf{variance};
+    \item[(b)] $\E V(r)$ is only \textbf{asymptotically} a power law
+               --- deterministic offset at small $r$, source of
+               \textbf{bias}.
+    \end{itemize}
+
+  \vspace{0.4em}
+  The next two frames formalise each source.
+\end{frame}
+
+\begin{frame}{Formalising the population mean: asymptotic expansion}
+  \textbf{Working hypothesis.}
   \[
     \E Y_i \;=\; a_0\, i^{\gamma}\,
        \exp\!\Big(\, a_1\, i^{-1}
                   \;+\; \phi(i)\, i^{-2} \,\Big),
     \qquad \phi \text{ bounded.}
   \]
-  {\footnotesize\textbf{Remark.} This is \textbf{not} exponential decay.
-  The exponential is just a convenient way to write the multiplicative
-  correction
-  $\;\E Y_i \approx a_0\, i^{\gamma} + a_1\, i^{\gamma - 1} + \cdots\;$
-  in a form whose $\log$ is additive.}
 
   \vspace{0.4em}
-  Identifications for our running example:
+  Identification for our running example:
   $Y_i \leftrightarrow V(r)$ with $i = r$, $\gamma \leftrightarrow d_f$.
 
-  \TODO{$a_0$ is a lattice-dependent amplitude (the intercept on the
-        log--log panel). $a_1$ is the leading finite-size correction
-        coefficient --- encodes boundary / discreteness effects.
-        $\phi$ is the remainder, assumed only \textbf{bounded}.
-        Higher-order corrections sit inside $\phi$ and decay one power
-        of $i$ faster than $a_1/i$.}
+  \vspace{0.4em}
+  {\footnotesize\textbf{Reading the expansion.}
+  \begin{itemize}
+    \item $a_0\, i^{\gamma}$ --- the power law we are after.
+    \item $a_1 / i$ --- leading finite-size correction (boundary,
+          discreteness). Its log is the source of
+          \textbf{deterministic bias} at small $i$.
+    \item $\phi(i) / i^2$ --- bounded remainder, one power faster.
+    \item This is \textbf{not} exponential decay: the exponential is
+          just a tidy way to write the multiplicative correction
+          $a_0\, i^{\gamma}(1 + a_1/i + \cdots)$ in a form whose log
+          is additive.
+  \end{itemize}}
+\end{frame}
+
+\begin{frame}{Chalkboard: per-scale decomposition}
+  Define the random ratio
+  $\;\overline{\xi}_k \;:=\; \overline Y_{\rho^k}\,/\,\E Y_{\rho^k}\;$
+  (sample-mean of $Y$ at scale $\rho^k$, normalised; mean $1$).
+
+  \vspace{0.2em}
+  Trivially $\;\log \overline Y_{\rho^k} = \log \E Y_{\rho^k}
+  + \log \overline{\xi}_k$. Substitute $i = \rho^k$ in the expansion
+  of the previous slide and take $\log$:
+  \[
+    \boxed{\;
+      \log \overline Y_{\rho^k} \;=\;
+        \underbrace{\log a_0 + k\,\gamma \log \rho}_{\text{signal (linear in }k\text{)}}
+        \;+\;
+        \underbrace{a_1\, \rho^{-k} + \phi(\rho^k)\, \rho^{-2k}}_{\text{finite-size bias (deterministic)}}
+        \;+\;
+        \underbrace{\log \overline{\xi}_k}_{\text{random}}\;.\;}
+  \]
+
+  \vspace{0.2em}
+  {\footnotesize\textbf{Notation.} Write $\alpha = \log a_0$ and
+  $\beta = \gamma \log \rho$ for the signal coefficients.}
+
+  \vspace{0.4em}
+  \begin{itemize}
+    \item Signal: linear in $k$ with slope $\beta = \gamma \log \rho$.
+    \item Bias: decays \textbf{geometrically} in $k$ (since $\rho > 1$).
+          After a few scales it sits below statistical noise.
+    \item Random part: $\E \log \overline{\xi}_k \approx 0$,
+          $\Var \log \overline{\xi}_k \asymp \sigma_k^2 / n$.
+  \end{itemize}
+
+  \TODO{Board steps:
+        (1) $\log \E Y_i = \log a_0 + \gamma \log i + a_1/i + \phi(i)/i^2$
+            from the expansion;
+        (2) substitute $i = \rho^k$: $\log i = k \log \rho$,
+            $1/i = \rho^{-k}$;
+        (3) add the random offset $\log \overline{\xi}_k$ to pass from
+            $\E Y$ to $\overline Y$;
+        (4) box the result --- three labelled terms.}
 \end{frame}
 
 \begin{frame}{Bias--variance trade-off}
+  Every term in the per-scale decomposition is now formal:
+  \begin{itemize}
+    \item the finite-size bias has size $\asymp \rho^{-k}$
+          (deterministic, shrinks with $k$);
+    \item the random part has size $\asymp \sigma_k/\sqrt{n}$
+          (stochastic, controlled by simulation cost).
+  \end{itemize}
+
+  \vspace{0.4em}
   \begin{columns}[t]
     \begin{column}{0.48\textwidth}
       \begin{alertblock}{Small $r$  (cheap)}
@@ -436,54 +501,17 @@
     \end{column}
   \end{columns}
 
-  \vspace{0.8em}
+  \vspace{0.6em}
   \begin{center}
     \large
-    Choosing which scales to use should be a
-    statistical decision, not an aesthetic one.
+    Choosing which scales to use is a
+    \textbf{statistical decision}, not an aesthetic one.
   \end{center}
 
-  \TODO{This is what the rest of the talk is about. The estimator we
-        will define drops the first $m_0$ scales (kills bias) and
-        averages over an OLS window of width $m$ (controls variance).
-        The whole point of §6 is: \textbf{how should $m_0$ scale with
-        $m$ and with the compute budget?} That is the practical knob.}
-\end{frame}
-
-\begin{frame}{Chalkboard: log--log linearisation}
-  Take $\log$ of the expansion above and substitute $i = \rho^k$:
-  \[
-    \log \E Y_{\rho^k} \;=\;
-      \underbrace{\log a_0 \;+\; k\, \gamma \log \rho}_{\text{signal (linear in }k\text{)}}
-      \;+\;
-      \underbrace{a_1\, \rho^{-k} \;+\; \phi(\rho^k)\, \rho^{-2k}}_{\text{finite-size correction (geometric in }k\text{)}}.
-  \]
-
-  \vspace{0.2em}
-  {\footnotesize\textbf{Notation.} Write
-  $\alpha = \log a_0$ and $\beta = \gamma \log \rho$, so the signal is
-  $\alpha + \beta k$.}
-
-  \vspace{0.4em}
-  \begin{itemize}
-    \item In the variable $k$, the leading term is linear with slope
-          $\gamma \log \rho$.
-    \item The correction decays \textbf{geometrically} in $k$ (since
-          $\rho > 1$): after a few scales it is statistical noise, not
-          signal.
-    \item Therefore the OLS slope of $\log \overline Y_{\rho^k}$ on
-          $k$ is a natural estimator of $\gamma \log \rho$, hence of
-          $\gamma$.
-  \end{itemize}
-
-  \TODO{Board steps:
-        (1) Start from $\E Y_i = a_0\, i^{\gamma}\, \exp(a_1/i + \phi(i)/i^2)$.
-        (2) Take log: $\log \E Y_i = \log a_0 + \gamma \log i + a_1/i + \phi(i)/i^2$.
-        (3) Substitute $i = \rho^k$: $\log i = k \log \rho$, $1/i = \rho^{-k}$.
-        (4) Box the result. Highlight that the geometric grid
-        $\rho^k$ is what makes the correction decay
-        \textbf{exponentially fast} in $k$ --- the whole reason for
-        using a geometric scale schedule.}
+  \TODO{The estimator we will define drops the first $m_0$ scales
+        (kills bias) and OLS-averages over a window of width $m$
+        (controls variance). The whole point of §6 is: \textbf{how
+        should $m_0$ scale with $m$ and with the compute budget?}}
 \end{frame}
 
 % =====================================================================
@@ -517,51 +545,6 @@
         $m_0$ --- how many small-$r$ scales to drop (bias control),
         and $m$ --- window width (variance control). Both are tuned
         in §6.}
-\end{frame}
-
-\begin{frame}{The three-part split}
-  \textbf{Step 1 --- algebraic identity:}
-  \[
-    \log \overline Y_{\rho^k}
-      \;=\;
-      \log \E Y_{\rho^k}
-      \;+\;
-      \log\!\Big(\dfrac{\overline Y_{\rho^k}}{\E Y_{\rho^k}}\Big).
-  \]
-
-  \textbf{Step 2 --- Taylor-expand the log:} let
-  $\overline{\xi_k} = \overline Y_{\rho^k}/\E Y_{\rho^k} - 1$. On the event
-  $\{\overline{\xi}_k \le 1/2\}$,
-  $\log( \overline{\xi}_k) = \overline{\xi}_k - 1 + q(\overline{\xi}_k - 1),$
-  where $q(\overline{\xi}_k -1) \le (\overline{\xi}_k - 1)^2$ in such ``good'' event.
-
-  \textbf{Step 3 --- apply $\hat\beta = \sum_k w_{k,m}\,(\cdot)$ and collect:}
-  Using
-  \[
-    \hat\beta - \beta \;=\; \sum_{k\, =\, m_0 + 1}^{m_0 + m}
-        w_{k,m}\,[ \log \overline Y_{\rho^k} - \alpha -\beta k],
-  \]
-  one obtains
-  \[
-    \boxed{\;
-      \hat\beta - \beta
-        \;=\;
-        \underbrace{R(m, m_0)}_{\text{finite-size bias}}
-        \;+\;
-        \underbrace{S_{n,m}}_{\text{linear stochastic}}
-        \;+\;
-        \underbrace{Q_{n,m}}_{\text{quadratic remainder}}\, , \;}
-  \]
-  with $\beta = \gamma \log \rho$. $R$ is the OLS slope of the
-  deterministic correction (from §3); $S$ is the OLS slope of
-  $\{\xi_k\}$; $Q$ is the OLS slope of the quadratic remainder.
-
-  \TODO{The whole §5 proof is one sentence: control $R$, $S$, $Q$
-        separately. $R$ is deterministic --- killed by the choice of
-        $m_0$. $S$ goes through Lindeberg--Feller (a CLT). $Q$
-        vanishes faster than the CLT rate on the good event
-        $\{|\xi_k| \le 1/2\}$; the bad event has exponentially small
-        probability.}
 \end{frame}
 
 \begin{frame}{Linear regression as a linear functional}
@@ -598,6 +581,45 @@
         $\Var \hat\beta \approx \Var(\log \overline Y) \cdot
         \sum w^2 \asymp (1/n) \cdot (1/m^3)$, so the standard
         error is $\asymp 1/\sqrt{nm^3}$.}
+\end{frame}
+
+\begin{frame}{The three-part split}
+  Apply $\;\sum_k w_{k,m}(\cdot)\;$ to the per-scale identity from §3:
+  \[
+    \hat\beta \;=\; \sum_k w_{k,m}\Bigl[
+        \underbrace{\log a_0 + k\,\beta}_{\text{signal}}
+        \;+\; \underbrace{a_1\rho^{-k} + \phi(\rho^k)\rho^{-2k}}_{\text{det.\ bias}}
+        \;+\; \underbrace{\log\overline{\xi}_k}_{\text{random}}
+      \Bigr].
+  \]
+  Weight identities (§4): $\sum w = 0$ kills $\log a_0$; $\sum k w = 1$
+  picks out $\beta$. Hence $\hat\beta - \beta$ retains only the bias
+  and random pieces.
+
+  \vspace{0.3em}
+  \textbf{Taylor-expand the random piece.} On the good event
+  $\mathcal G_k := \{|\overline{\xi}_k - 1| \le 1/2\}$,
+  $\;\log \overline{\xi}_k = (\overline{\xi}_k - 1) + q(\overline{\xi}_k - 1)\;$
+  with $|q(x)| \le x^2$.
+
+  \vspace{0.3em}
+  \textbf{Collect:}
+  \[
+    \boxed{\;
+      \hat\beta - \beta
+        \;=\;
+        \underbrace{\sum_k w_{k,m}\bigl(a_1\rho^{-k} + \phi(\rho^k)\rho^{-2k}\bigr)}_{\displaystyle R(m,m_0)}
+        \;+\;
+        \underbrace{\sum_k w_{k,m}(\overline{\xi}_k - 1)}_{\displaystyle S_{n,m}}
+        \;+\;
+        \underbrace{\sum_k w_{k,m}\,q(\overline{\xi}_k - 1)}_{\displaystyle Q_{n,m}}\;.\;}
+  \]
+
+  \TODO{The whole §5 proof is one sentence: control $R$, $S$, $Q$
+        separately. $R$ is deterministic --- killed by $m_0$.
+        $S$ goes through Lindeberg--Feller (a CLT). $Q$ vanishes
+        faster than the CLT rate on $\mathcal G_k$; the bad event
+        $\mathcal G_k^c$ is handled by Chebyshev + Cauchy--Schwarz.}
 \end{frame}
 
 % =====================================================================
@@ -665,12 +687,11 @@
 \end{frame}
 
 \begin{frame}{$S_{n,m}$ via Lindeberg--Feller}
-  $S_{n,m}$ is the OLS slope applied to the centred stochastic part:
+  $S_{n,m}$ is the OLS slope applied to the centred stochastic part
+  (with $\overline{\xi}_k = \overline Y_{\rho^k}/\E Y_{\rho^k}$, $\E\overline{\xi}_k = 1$):
   \[
     S_{n,m} \;=\; \sum_{k = m_0+1}^{m_0+m} w_{k,m}\,
-        \bigl(\overline{\xi}_k - 1\bigr),
-    \qquad
-    \overline{\xi}_k = \overline Y_{\rho^k}/\E Y_{\rho^k} - 1.
+        \bigl(\overline{\xi}_k - 1\bigr).
   \]
   A triangular array of \textbf{weighted i.i.d.\ averages}:
   $n$ replicas inside each $\overline{\xi}_k$, $m$ weighted terms in $k$.
@@ -697,10 +718,10 @@
 \end{frame}
 
 \begin{frame}{$Q_{n,m}$ Taylor remainder vanishes faster}
-  From §4, Step 2: on the \textbf{good event}
-  $\mathcal{G}_k = \{\overline{\xi}_k \ge 1/2\}$,
-  $\;q(\overline{\xi}_k - 1) = \log(\overline{\xi}_k) - \overline{\xi}_k + 1\;$
-  is bounded by $(\overline{\xi}_k - 1)^{\,2}$. So
+  From §4: on the \textbf{good event}
+  $\mathcal{G}_k = \{|\overline{\xi}_k - 1| \le 1/2\}$,
+  $\;q(\overline{\xi}_k - 1) = \log(\overline{\xi}_k) - (\overline{\xi}_k - 1)\;$
+  satisfies $|q(\overline{\xi}_k-1)| \le (\overline{\xi}_k - 1)^{\,2}$. So
   \[
     |Q_{n,m}| \;\le\; \sum_k |w_{k,m}|\, (\overline{\xi}_k - 1)^{\,2}
                  \;+\; \text{bad-event term}.
@@ -713,9 +734,9 @@
   gives $\sqrt{m/n} \to 0$.
 
   \vspace{0.4em}
-  \textbf{Bad event.} Use union bound and Chebyshev inequality to
+  \textbf{Bad event.} Use union bound and Chebyshev to
   bound $\P(\mathcal{G}_k^c) \le 4\sigma_k^2/n$. Then use
-  Cauchy--Schwarz to bound $\E[Q_{n,m}\,\mathbbm{1}_{\mathcal{G}_m^c}]$.
+  Cauchy--Schwarz to bound $\E[Q_{n,m}\,\mathbbm{1}_{\mathcal{G}_k^c}]$.
 \end{frame}
 
 \begin{frame}{$R(m,m_0)$ finite-size bias --- the geometric scale wins}
