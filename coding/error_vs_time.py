@@ -7,11 +7,6 @@ plots |bias| = |mean(hat d_f) - d_f| against the simulation time per replica
 regime. Each point is annotated with its (m, m_0). The OLS slope of each
 regime's log|bias|-log time curve is printed and shown in the legend.
 
-Note on overlapping points: for several values of m in the grid the constant
-regime m_0 = 1 numerically coincides with alpha=1/4 (since floor(m/4) = 1 for
-m in {4,...,7}). To keep both visible we use a distinct marker per regime and
-plot the constant regime last with higher z-order. Markers also get a slight
-horizontal jitter to disambiguate identical points.
 """
 
 import csv
@@ -35,20 +30,18 @@ IMG_DIR  = ROOT / "images"
 CSV  = DATA_DIR / "regime_sweep.csv"
 META = DATA_DIR / "fractal_dim_pool.meta.json"
 
-# (regime_key, marker, jitter_log_x, plot_zorder)
+# (regime_key, marker, plot_zorder)
 # Colours come from REGIME_COLORS, labels from REGIME_LATEX (lib.plotting).
 REGIME_STYLE = [
-    ("alpha=1/4",  "o",  0.00, 3),
-    ("alpha=1/3",  "s", +0.03, 3),
-    ("alpha=1/2",  "^", +0.06, 3),
-    ("const m0=1", "X", -0.03, 10),    # plotted last, on top
+    ("alpha=1/2",  "^", 3),
+    ("const m0=1", "X", 10),    # plotted last, on top
 ]
 LABEL_OFFSET = {
     "const m0=1": (-6, -16),
-    "alpha=1/4":  (+6, +8),
-    "alpha=1/3":  (+6, -16),
     "alpha=1/2":  (+6, +8),
 }
+
+CI_Z = 1.96  # 95% Gaussian half-width
 
 
 def load_rows():
@@ -82,14 +75,16 @@ def main():
     fig, ax = plt.subplots(figsize=(10.0, 6.0))
 
     slope_by_regime = {}
-    for regime, marker, jitter, zorder in REGIME_STYLE:
+    for regime, marker, zorder in REGIME_STYLE:
         color = REGIME_COLORS[regime]
         sub = sorted([r for r in rows if r["regime"] == regime],
                      key=lambda r: r["mean_L2_time_s"])
         if not sub:
             continue
-        times = np.array([r["mean_L2_time_s"] for r in sub])
-        absb  = np.array([abs(r["bias"])      for r in sub])
+        times = np.array([r["mean_L2_time_s"]      for r in sub])
+        absb  = np.array([abs(r["bias"])           for r in sub])
+        stds  = np.array([r["std"]                 for r in sub])
+        ntrials = np.array([r["log_logPlot_trials"] for r in sub])
         if np.any(absb <= 0):
             continue
         # OLS slope on log–log (only if ≥2 points)
@@ -100,16 +95,22 @@ def main():
         else:
             label = REGIME_LATEX[regime]
 
-        # apply small log-x jitter so coincident points don't fully overlap
-        times_plot = times * (10.0 ** jitter)
-        ax.loglog(times_plot, absb,
-                  linestyle="-", marker=marker, color=color,
-                  lw=1.6, ms=9, mew=1.6,
-                  mfc=(color if marker != "X" else "none"),
-                  mec=color, zorder=zorder, label=label)
+        # 95% CI half-width on hat_d_f - d_f: ±z * std / sqrt(N_trials).
+        ci_half = CI_Z * stds / np.sqrt(ntrials)
+        # Asymmetric bars on log axis: clip lower bar so it doesn't reach zero.
+        lower_err = np.minimum(ci_half, 0.95 * absb)
+        upper_err = ci_half
+        yerr = np.vstack([lower_err, upper_err])
+
+        ax.errorbar(times, absb, yerr=yerr,
+                    linestyle="-", marker=marker, color=color,
+                    lw=1.6, ms=9, mew=1.6,
+                    mfc=(color if marker != "X" else "none"),
+                    mec=color, zorder=zorder, label=label,
+                    capsize=4, elinewidth=1.0, ecolor=color)
 
         dx, dy = LABEL_OFFSET[regime]
-        for r, t, b in zip(sub, times_plot, absb):
+        for r, t, b in zip(sub, times, absb):
             ax.annotate(f"m={r['m']},m$_0$={r['m_0']}", (t, b),
                         xytext=(dx, dy), textcoords="offset points",
                         fontsize=8, color=color, zorder=zorder + 1)
@@ -126,8 +127,10 @@ def main():
     ax.set_title(rf"Error vs simulation time   "
                  rf"(square, $N={meta['N']}$, "
                  rf"$\tau\approx{sec_per_trial:.3f}$ s/trial)")
+    ax.set_xscale("log")
+    ax.set_yscale("log")
     apply_grid(ax, log=True)
-    ax.legend(loc="lower left", fontsize=9, framealpha=0.95)
+    ax.legend(loc="upper right", fontsize=9, framealpha=0.95)
     fig.tight_layout(rect=(0, 0.07, 1, 0.96))
     footer(fig, pool_footer_text(meta))
 
