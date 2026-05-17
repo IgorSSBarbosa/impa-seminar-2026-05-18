@@ -140,24 +140,32 @@ def main():
                 mean_sl = float(sl.mean())
                 bias    = mean_sl - DF_THEORY
                 std     = float(sl.std(ddof=1))
-                rmse    = float(np.sqrt(((sl - DF_THEORY) ** 2).mean()))
+                sq_err  = (sl - DF_THEORY) ** 2
+                rmse2   = float(sq_err.mean())
+                rmse    = float(np.sqrt(rmse2))
+                # SE of MSE = std(sq_err) / sqrt(R); SE of RMSE by the
+                # delta method ≈ SE(MSE) / (2 RMSE). Gives a proper CI
+                # on the plotted y-quantity (rather than on the mean
+                # slope, which is what the old code was reporting).
+                se_mse  = float(sq_err.std(ddof=1) / np.sqrt(len(sl)))
+                se_rmse = se_mse / (2.0 * rmse) if rmse > 0 else float("nan")
                 B       = budget(n, m_0, m)
                 rows.append({
                     "regime": key, "n": n, "m": m, "m_0": m_0,
                     "blocks": len(sl), "dropped_blocks": bad,
                     "mean_slope": mean_sl, "bias": bias,
-                    "std": std, "rmse": rmse, "budget": B,
-                    "k_max": m_0 + m,
+                    "std": std, "rmse": rmse, "se_rmse": se_rmse,
+                    "budget": B, "k_max": m_0 + m,
                 })
                 print(f"  n={n:5d}  m={m}  m_0={m_0:2d}  R={len(sl):4d}  "
                       f"mean={mean_sl:.4f}  bias={bias:+.4f}  "
-                      f"rmse={rmse:.4f}  B={B:.3e}")
+                      f"rmse={rmse:.4f}±{CI_Z*se_rmse:.4f}  B={B:.3e}")
         print()
 
     # ── CSV ──────────────────────────────────────────────────────────────────
     csv_path = DATA_DIR / "masterpiece.csv"
     fields = ["regime", "n", "m", "m_0", "k_max", "blocks", "dropped_blocks",
-              "mean_slope", "bias", "std", "rmse", "budget"]
+              "mean_slope", "bias", "std", "rmse", "se_rmse", "budget"]
     with csv_path.open("w") as f:
         w = csv.DictWriter(f, fieldnames=fields)
         w.writeheader()
@@ -194,14 +202,16 @@ def main():
                          key=lambda r: r["m"])
             if len(sub) < 2:
                 continue
-            B    = np.array([r["budget"] for r in sub])
-            rmse = np.array([r["rmse"]   for r in sub])
-            Rs   = np.array([r["blocks"] for r in sub])
-            stds = np.array([r["std"]    for r in sub])
+            B    = np.array([r["budget"]  for r in sub])
+            rmse = np.array([r["rmse"]    for r in sub])
+            se   = np.array([r["se_rmse"] for r in sub])
 
-            # 95% CI on hat_gamma, clipped on the lower side for log axis safety
-            ci_half   = CI_Z * stds / np.sqrt(Rs)
-            lower_err = np.minimum(ci_half, 0.95 * rmse)
+            # 95% Gaussian CI on the RMSE itself (delta-method SE,
+            # see se_rmse computation above). Lower whisker is clipped
+            # to 50% of rmse so it stays visible on the log axis even
+            # for the high-block-count cells where the SE is tiny.
+            ci_half   = CI_Z * se
+            lower_err = np.minimum(ci_half, 0.5 * rmse)
             upper_err = ci_half
             yerr      = np.vstack([lower_err, upper_err])
 
@@ -212,7 +222,8 @@ def main():
                         lw=1.4, ms=7, mew=1.2,
                         mfc=color, mec=color,
                         label=REGIME_LATEX[key],
-                        capsize=3, elinewidth=0.9, ecolor=color)
+                        capsize=4, elinewidth=1.1, capthick=1.1,
+                        ecolor=color)
 
             # annotate each point with its m
             for r, b, y in zip(sub, B, rmse):
