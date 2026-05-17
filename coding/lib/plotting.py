@@ -27,7 +27,7 @@ REGIME_LATEX: dict[str, str] = {
     "alpha=1/4":  r"$m_0 = \lfloor m/4 \rfloor$",
     "alpha=1/3":  r"$m_0 = \lfloor m/3 \rfloor$",
     "alpha=1/2":  r"$m_0 = \lfloor m/2 \rfloor$",
-    "log_rho":    r"$m_0 = \lfloor \tfrac12 \log_\rho(nm^3) \rfloor$",
+    "log_rho":    r"$m_0 = \lceil \frac{1}{2}\log_\rho(nm^3) \rceil$",
     "min_arm":    r"$m - m_0 = 2$",
 }
 
@@ -51,6 +51,27 @@ LATTICE_COLOR: dict[str, str] = {
 
 # ── Grid / footer helpers ────────────────────────────────────────────────────
 
+def format_duration(seconds) -> str:
+    """Render a wall-clock duration as ``HhMMmSSs`` / ``MMmSSs`` / ``SS.Ss``.
+
+    Used in footer lines so that long pool runtimes (e.g. 5667 s) read as
+    ``1h34m27s`` instead of a bare seconds count.
+    """
+    try:
+        s = float(seconds)
+    except (TypeError, ValueError):
+        return str(seconds)
+    if s < 0:
+        return f"-{format_duration(-s)}"
+    if s < 60:
+        return f"{s:.1f}s"
+    m, sec = divmod(int(round(s)), 60)
+    if m < 60:
+        return f"{m}m{sec:02d}s"
+    h, m = divmod(m, 60)
+    return f"{h}h{m:02d}m{sec:02d}s"
+
+
 def apply_grid(ax, *, log: bool = False) -> None:
     """Standard dotted grid; pass `log=True` for log–log axes."""
     which = "both" if log else "major"
@@ -72,7 +93,7 @@ def pool_footer_text(meta: dict, *, scales: Iterable[int] | None = None) -> str:
     """
     sc = list(scales) if scales is not None else meta.get("scales", [])
     parts = [
-        f"pool elapsed ≈ {meta.get('elapsed_seconds','?')}s",
+        f"pool elapsed ≈ {format_duration(meta.get('elapsed_seconds'))}",
         f"trials = {meta.get('n_trials','?')}",
         f"seed = {meta.get('seed','?')}",
         f"scales = {[int(s) for s in sc]}",
@@ -95,6 +116,6 @@ def sim_footer_text(meta: dict) -> str:
         f"N = {meta.get('N','?')}   "
         f"trials = {meta.get('n_trials','?')}   "
         f"scales = {meta.get('n_scales','?')}  {sc_range}   "
-        f"elapsed ≈ {meta.get('elapsed_seconds','?')}s   "
+        f"elapsed ≈ {format_duration(meta.get('elapsed_seconds'))}   "
         f"seed = {meta.get('seed','?')}"
     )
