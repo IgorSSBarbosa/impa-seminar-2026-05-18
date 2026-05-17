@@ -814,18 +814,119 @@
 % target: ≈ 4 min
 % =====================================================================
 
-\begin{frame}{Minimax lower bound}
-  \TODO{$\inf_{\hat\gamma}\sup_\theta \E_\theta[\hat\gamma -
-        \gamma(\theta)]^2 \gtrsim B^{-2\omega/(d + 2\Omega)},$
-        where $\omega$ is the leading exponent and $\Omega$ the
-        correction-to-scale exponent. Proof: KL between two product
-        measures differing in $\gamma$, then Fano.}
+\begin{frame}{Question: can any estimator beat $B^{-J/(d+2J)}$?}
+  We just showed the log--log plot estimator (with Richardson
+  extrapolation under a $J$-order expansion) attains
+  \[
+    \E\bigl[(\hat\gamma - \gamma)^{\,2}\bigr]
+      \;\asymp\; B^{-2J/(d + 2J)}.
+  \]
+  Here $d$ is the spatial dimension and $J$ the order of the
+  finite-size expansion of $\E Y_L$ around its leading term.
+
+  \vspace{0.6em}
+  \textbf{Question.} Is this rate the best any estimator can do, or
+  could a cleverer procedure squeeze more out of the same budget $B$?
+
+  \vspace{0.6em}
+  \textbf{Answer.} No --- the rate is sharp up to a $\log^2 B$ factor.
+
+  \vspace{0.4em}
+  \begin{block}{Theorem (minimax lower bound)}
+    For every $J \ge 1$, every $d \ge 1$, and every $\log B \ge 2(d+2J)/d$,
+    \[
+      \inf_{\hat\gamma}\;\sup_{\mathbb{W}\in\mathcal{P}_J}\;
+        \E_{\mathbb{W}}\bigl[(\hat\gamma - \gamma)^{\,2}\bigr]
+      \;\ge\;
+      \frac{(d+2J)^{2}}{8}\,\frac{c^{2}\,e^{-a^{2}/2}}{\log^{2}\!B}\;
+          B^{-\,2J/(d+2J)}.
+    \]
+  \end{block}
 \end{frame}
 
-\begin{frame}{Upper bound matches the lower bound up to logs}
-  \TODO{Plug $m \asymp \log_\rho(B)$ and $n \asymp B/m$ in our CLT
-        rate $1/\sqrt{nm^3}$; recover the lower bound up to log
-        factors. $\Rightarrow$ the log--log estimator is near-minimax.}
+\begin{frame}{Proof idea --- two-point reduction}
+  Pick \emph{two} candidate models $\mathbb{X},\mathbb{Y}\in\mathcal{P}_J$
+  whose parameters $\gamma$ differ by $s$. The minimax risk
+  is lower-bounded by separating these two:
+  \begin{block}{Two-point lemma (adapted from \cite{minimax_lowerBoundsJennifer})}
+    \[
+      \inf_{\hat\gamma}\sup_{\mathbb{W}\in\mathcal{P}_J}
+        \E_{\mathbb{W}}\bigl[(\hat\gamma - \gamma)^{\,2}\bigr]
+      \;\ge\; \tfrac{1}{4}\,s^{2}\,\exp\bigl(-\mathrm{KL}(\mathbb{X}\,\|\,\mathbb{Y})\bigr).
+    \]
+  \end{block}
+
+  \vspace{0.4em}
+  \textbf{Our construction.} For each scale $L=\rho^{k}$,
+  \[
+    X_L \;\sim\; e^{Z},\qquad
+    Y_L \;\sim\;
+      \begin{cases} e^{Z} & L < L^{\ast},\\[0.2em]
+                    e^{Z + \lambda_L} & L \ge L^{\ast}, \end{cases}
+        \qquad Z\sim\mathcal{N}(0,1).
+  \]
+  \quad with $L^{\ast}=B^{1/(d+2J)}$,
+  $\lambda_L = \gamma \log L$,
+  $\gamma = \log\!\bigl(1-(L^{\ast})^{-J}\bigr)\big/\log(1/L^{\ast})$.
+
+  \vspace{0.4em}
+  Direct check: $\mathbb{Y}$ stays inside $\mathcal{P}_J$ (the $J$-order
+  expansion holds), and $\E X_L = 1$, $\E Y_L = L^{\gamma}\!\cdot\!\mathbbm{1}_{\{L\ge L^{\ast}\}}+\mathbbm{1}_{\{L<L^{\ast}\}}$.
+\end{frame}
+
+\begin{frame}{Proof idea --- the ``enemy'' picks the worst budget split}
+  The KL between the two product measures factorises over scales:
+  \[
+    \mathrm{KL}(\mathbb{X}\,\|\,\mathbb{Y})
+      \;=\; \tfrac{1}{2}\sum_{L\ge L^{\ast}} n_L(B)\,\gamma^{\,2}\log^{2}\!L,
+  \]
+  where $n_L(B)$ is the number of trials the statistician spends at
+  scale $L$, subject to the budget $\sum_L n_L\,L^{\,d}\le B$.
+
+  \vspace{0.4em}
+  \textbf{The enemy} (Nature) maximises the KL. Change of variable
+  $M_L = n_L L^{\,d}/B$:
+  \[
+    \max_{(M_L)}\;\sum_{L\ge L^{\ast}} B\,M_L\,L^{-d}\log^{2}\!L
+        \quad\text{s.t.}\quad \sum_L M_L \le 1.
+  \]
+  Linear in $M_L$ on the simplex $\Rightarrow$ optimum at an extreme point:
+  put all mass on the $L$ that maximises $L^{-d}\log^{2}\!L$. Calculus shows
+  this is $L^{\ast}$ as soon as $\log B\ge 2(d+2J)/d$.
+
+  \vspace{0.4em}
+  Substituting $L^{\ast}=B^{1/(d+2J)}$ and bounding
+  $\log^{2}(1-x)\le a^{2}x^{2}$ gives $\mathrm{KL}\le a^{2}/2$, a
+  \emph{constant}. The $s^{2}\!\cdot\! e^{-\mathrm{KL}}$ in the two-point
+  lemma then yields the announced rate.
+\end{frame}
+
+\begin{frame}{Upper meets lower --- the log--log plot is near-minimax}
+  Our CLT (§5) gives the upper bound
+  $\E[(\hat\gamma-\gamma)^{\,2}]\asymp 1/(nm^{\,3})$. Plugging the
+  CLT-optimal schedule $m\asymp\log_\rho B$, $n\asymp B/m^{\,c}$
+  (with Richardson extrapolation to push the bias to order $J$):
+  \[
+    \E[(\hat\gamma-\gamma)^{\,2}]_{\,\text{upper}}
+      \;\asymp\; B^{-\,2J/(d+2J)}\quad\text{(no $\log$).}
+  \]
+
+  \vspace{0.4em}
+  Comparing with the lower bound:
+  \[
+    \boxed{\;
+      \underbrace{\tfrac{c'}{\log^{\,2}\!B}\,B^{-\,2J/(d+2J)}}_{\text{lower}}
+      \;\le\;
+      \inf_{\hat\gamma}\sup_{\mathcal{P}_J} \E[(\hat\gamma-\gamma)^{\,2}]
+      \;\le\;
+      \underbrace{C\,B^{-\,2J/(d+2J)}}_{\text{upper (log--log plot)}}
+      \;}
+  \]
+
+  \vspace{0.4em}
+  Gap: a $\log^{2}\!B$ factor. So the venerable physicists' log--log
+  plot is \textbf{minimax-rate-optimal up to logs} --- no fancier
+  estimator can do polynomially better.
 \end{frame}
 
 % =====================================================================
@@ -849,12 +950,33 @@
 % =====================================================================
 
 \begin{frame}{Take-aways}
-  \TODO{(1) Physicists' log--log plot has a rigorous statistical theory.
-        (2) The estimator is asymptotically near-optimal.
-        (3) $m_0$ is the key practical lever; $\alpha m$ with
-            $\alpha \in (1/4, 1/2)$ is robust in practice.
-        (4) Confidence intervals: four explicit terms, each with a
-            different rate — pick $m_0$ to balance.}
+  \begin{enumerate}
+    \item \textbf{The physicists' log--log plot has a rigorous
+          statistical theory.} A CLT for $\hat\gamma$ with explicit
+          rate $\sqrt{n m^{\,3}}$ and limiting variance
+          $12\sigma_\infty^{\,2}/\log^{\,2}\!\rho$ --- assumptions
+          (A0)--(A3) on the model, joint scaling
+          $\rho^{-m_0}\!\ll\!\sqrt{m/n}$ on the regression design.
+    \item \textbf{Three explicit error terms, three different rates.}
+          Deterministic bias $R$ ($\rho^{-m_0}/m^{2}$), linear stochastic $S$
+          (Gaussian at $1/\sqrt{n m^{\,3}}$), Taylor remainder $Q$
+          ($1/(nm)$). They each have their own knob --- $m_0$
+          balances them.
+    \item \textbf{$m_0$ is the practical lever.} Empirically (§6),
+          $m_0 \asymp \tfrac{1}{2}\log_\rho(n m^{\,3})$ gives the
+          best bias--variance trade-off; $m_0 = \lfloor m/2\rfloor$
+          is a robust default; $m_0 = 1$ leaves the leading bias
+          on the table.
+    \item \textbf{Near-minimax.} The achieved rate
+          $B^{-J/(d+2J)}$ matches the minimax lower bound up to a
+          $\log B$ factor: under a $J$-order expansion no estimator
+          can beat the log--log plot polynomially in the budget $B$.
+  \end{enumerate}
+
+  \vspace{0.4em}
+  \textbf{Practical recipe.} Pick $m\asymp\log_\rho B$, $m_0$ as above,
+  spend the remaining budget on replicas $n$; read off
+  $\hat\gamma$ and its Wilson interval.
 \end{frame}
 
 \begin{frame}[plain]
@@ -864,6 +986,36 @@
     {\large Questions?}
   \end{center}
   \vfill
+\end{frame}
+
+\begin{frame}{References \& code}
+  \textbf{Key references.}
+  \begin{itemize}\setlength{\itemsep}{2pt}
+    \item Broadbent \& Hammersley (1957) --- origin of percolation
+          theory. \cite{broadbentHammersley1957}
+    \item Stauffer (1979) --- scaling theory of percolation
+          clusters, big-cluster sizes. \cite{bigCluster}
+    \item Grimmett (1999) --- canonical reference for percolation
+          on $\mathbb{Z}^d$. \cite{grimmett1999percolation}
+    \item van~der~Vaart (1998) --- asymptotic statistics, CLT
+          machinery. \cite{vanderVaart1998}
+    \item Boucheron, Lugosi \& Massart (2013) --- concentration
+          inequalities used for the bad-event bound.
+          \cite{boucheron2013concentration}
+    \item Tsybakov (2009) --- two-point KL minimax lower bound;
+          Theorem 2.2 underlies §7. \cite{tsybakov2009introduction}
+    \item Leath (1976) --- lazy cluster growth algorithm referenced
+          in the simulation appendix. \cite{leath1976}
+  \end{itemize}
+
+  \vspace{0.8em}
+  \textbf{Code, slides and notes.}\\[0.2em]
+  \quad\url{https://github.com/IgorSSBarbosa/impa-seminar-2026-05-18}
+
+  \vspace{0.4em}
+  \footnotesize Includes: the BFS pool simulator (serial + parallel),
+  every figure in this deck, the $\hat\gamma$ regression code, and
+  the design notes for the Leath-style lazy-growth simulator.
 \end{frame}
 
 % =====================================================================
