@@ -52,8 +52,14 @@
 \addbibresource{refs.bib}
 
 % Short author-year citation: produces "[Name'YY]" inline.
-% The references slide is curated manually, so no biblatex tracking is needed.
-\newcommand{\citeyy}[1]{[#1]}
+% Two-arg form \citeyy{key}{display}: every use emits a \hypertarget
+% so the References frame can \hyperlink back to the citation site.
+% Hyperref will warn "destination with same identifier already exists"
+% if a key is cited more than once — that's a harmless warning; the
+% back-link still resolves (to one of the citation sites).  The
+% references slide is curated manually, so no biblatex tracking is
+% needed.
+\newcommand{\citeyy}[2]{\hypertarget{cite:#1}{[#2]}}
 
 \graphicspath{{../images/}}
 
@@ -136,7 +142,7 @@
 
 \maketitle
 
-\begin{frame}{Plan of the talk}
+\begin{frame}{Summary}
   \begin{columns}[T,onlytextwidth]
     \begin{column}{0.48\textwidth}
       \textbf{Background} \footnotesize(physicists' picture)\normalsize
@@ -144,8 +150,8 @@
         \item Phase transitions in percolation
         \item Critical exponents, scaling, universality
         \item From physics heuristic to statistical question\\
-              \footnotesize(bridge --- the budget framing here is, to
-              our knowledge, new)\normalsize
+              % \footnotesize(bridge --- the budget framing here is, to
+              % our knowledge, new)\normalsize
       \end{enumerate}
     \end{column}
     \begin{column}{0.48\textwidth}
@@ -156,7 +162,7 @@
         \item Main theorem: CLT for $\hat\gamma$
         \item The role of $m_0$ and Wilson confidence intervals
         \item Lower bound and optimality
-        \item (Optional) Closed-form sanity checks
+        % \item (Optional) Closed-form sanity checks
         \item Wrap-up
       \end{enumerate}
     \end{column}
@@ -174,7 +180,7 @@
                     {Broadbent_Hammersley\(1957\).pdf}
   \end{center}
   \note{%
-    Broadbent \& Hammersley \citeyy{Broadbent \& Hammersley'57}
+    Broadbent \& Hammersley \citeyy{broadbent}{Broadbent \& Hammersley'57}
     wanted to model a gas mask: a porous carbon granule with random
     defects. They threw away \textbf{everything} physical except one
     number --- the density $p$ of \textbf{open} sites.\par\smallskip
@@ -190,7 +196,7 @@
 \end{frame}
 
 \demoframe{SIMULATION}{run - \texttt{perc\_interactive.py}\\[0.4em]
-  {\footnotesize\normalfont based on the book \citeyy{Malthe-S\o renssen'24}}}
+  {\footnotesize\normalfont based on the book \citeyy{malthe}{Malthe-S\o renssen'24}}}
 
 \begin{frame}{Phase transitions everywhere}
   \begin{itemize}
@@ -230,7 +236,7 @@
 \end{frame}
 
 \demoframe{GIF}{run - \texttt{lattices\_merged.gif}\\[0.4em]
-  {\footnotesize\normalfont based on the book \citeyy{Malthe-S\o renssen'24}}}
+  {\footnotesize\normalfont based on the book \citeyy{malthe}{Malthe-S\o renssen'24}}}
 
 \begin{frame}{Defining the critical parameter $p_c$}
   Fix a lattice. Let
@@ -268,7 +274,7 @@
   \TODO{Higher vertex degree means it is easier for the cluster to
         grow, and so $p_c$ is lower. Triangular $p_c = 1/2$ is
         \textbf{exact} (Sykes--Essam duality); square is only known
-        numerically. See \citeyy{Grimmett'99}.}
+        numerically. See \citeyy{grimmett}{Grimmett'99}.}
 \end{frame}
 
 % =====================================================================
@@ -308,7 +314,7 @@
         case: \textbf{positive} exponents of the $r^\beta$ family with
         $\beta > 0$. The same statistical machinery lifts to the rest
         with extra work. Hyperscaling $d_f = d/(\tau-1)$ to be
-        verified before the talk. Source: \citeyy{Stauffer'79}.}
+        verified before the talk. Source: \citeyy{stauffer}{Stauffer'79}.}
 \end{frame}
 
 \begin{frame}{Two anchor observables}
@@ -887,10 +893,10 @@
 % target: ≈ 4 min
 % =====================================================================
 
-\begin{frame}{What rate does the log--log plot achieve?}
+\begin{frame}{Using just two points}
   \textbf{Cost model.} A single trial at scale $L=\rho^{k}$ costs
   $\asymp L^{\,d}$ operations, where $d$ is the per-trial cost
-  exponent of the simulator (e.g.\ $d=2$ for arena BFS in §6).
+  exponent of the simulator (e.g.\ $d=2$ for percolation on the plane).
   With $n$ replicas, the \emph{simulation budget} is
   \[
     B \;=\; n\,\rho^{\,(m_0+m)\,d}.
@@ -918,11 +924,11 @@
   ($R\asymp\rho^{-m_0}$ and $\Var(\hat\gamma)\asymp 1/n$):
   \[
     \E\bigl[(\hat\gamma-\gamma)^{\,2}\bigr]
-    \;\le\;
+    \;\lesssim\;
     \underbrace{C_R\,\rho^{-2m_0}}_{\text{bias}^2}
     \;+\;
     \underbrace{C_S/n}_{\text{variance}}
-    \;\le\;
+    \;\lesssim\;
     C\,B^{-\,2/(d+2)}.
   \]
 
@@ -930,9 +936,9 @@
   \textbf{Question.} Is the exponent $2/(d+2)$ \emph{sharp}, or could
   a cleverer estimator do polynomially better?
 
-  \vspace{0.2em}
-  \footnotesize Details + general constant-$m$ analysis:
-  \texttt{notes/upper\_bound\_rate\_derivation.tex}.
+  % \vspace{0.2em}
+  % \footnotesize Details + general constant-$m$ analysis:
+  % \texttt{notes/upper\_bound\_rate\_derivation.tex}.
 \end{frame}
 
 \begin{frame}{Answer: $\boldsymbol{B^{-2/(d+2)}}$ is sharp (up to logs)}
@@ -997,7 +1003,7 @@
   $\E Y_L = L^{\gamma}\!\cdot\!\mathbbm{1}_{\{L\ge L^{\ast}\}}+\mathbbm{1}_{\{L<L^{\ast}\}}$.
 \end{frame}
 
-\begin{frame}{Proof idea --- the ``enemy'' picks the worst budget split}
+\begin{frame}{Proof idea --- the ``enemy'' picks the best budget split}
   The KL between the two product measures factorises over scales:
   \[
     \mathrm{KL}(\mathbb{X}\,\|\,\mathbb{Y})
@@ -1056,13 +1062,12 @@
           environment, polymers, interacting particle systems near
           their critical points --- anywhere a log--log plot is
           currently read by eye.
-    \item \textbf{Faster simulators.} Leath-style lazy BFS (notes:
-          \texttt{leath\_simulator\_plan.md}), GPU-parallel cluster
-          generation. Lowering the cost exponent $d$ directly
-          improves the achievable rate $B^{-2/(d+2)}$.
+    \item \textbf{Faster simulators.} Leath-style lazy BFS (for the 
+          cluster fractal dimension), GPU-parallel cluster
+          generation.
     \item \textbf{Hypothesis test: ``a critical exponent exists''.}
           In the spirit of Clauset--Shalizi--Newman power-law tests
-          for heavy-tailed data, build a goodness-of-fit procedure
+          for heavy-tailed data, build a statistical procedure
           that rejects the power-law null when the log--log plot is
           incompatible with $\E Y_i \sim a_0\,i^{\gamma}$.
     \item \textbf{Negative critical exponents.} $\gamma < 0$:
@@ -1086,38 +1091,65 @@
   \vfill
 \end{frame}
 
-\begin{frame}{References \& code}
-  \textbf{Key references.}
-  \begin{itemize}\setlength{\itemsep}{2pt}
-    \item \citeyy{Broadbent \& Hammersley'57} --- origin of
-          percolation theory.
-    \item \citeyy{Stauffer'79} --- scaling theory of percolation
-          clusters, big-cluster sizes.
-    \item \citeyy{Grimmett'99} --- canonical reference for
-          percolation on $\mathbb{Z}^d$.
-    \item \citeyy{van der Vaart'98} --- asymptotic statistics, CLT
-          machinery.
-    \item \citeyy{Boucheron, Lugosi \& Massart'13} --- concentration
-          inequalities used for the bad-event bound.
-    \item \citeyy{Rogers'18} --- lecture notes on information-theoretic
-          minimax lower bounds; two-point lemma adapted in §7.
-    \item \citeyy{Carpentier \& Kim'15} --- analogous minimax theorem
-          for the tail coefficient of second-order Pareto distributions.
-    \item \citeyy{Leath'76} --- lazy cluster growth algorithm
-          referenced in the simulation appendix.
-    \item \citeyy{Malthe-S\o renssen'24} --- \emph{Percolation Theory
-          Using Python}; basis for the \texttt{perc\_interactive.py}
-          demo and the \texttt{lattices\_merged.gif} animation.
+\begin{frame}{References}
+  \footnotesize
+  Click any tag to jump back to the slide where it is cited.
+  \begin{itemize}\setlength{\itemsep}{3pt}
+    \item \hyperlink{cite:broadbent}{[Broadbent \& Hammersley'57]}
+          S.~R.~Broadbent and J.~M.~Hammersley.
+          \emph{Percolation processes: I.~Crystals and mazes.}
+          Math.\ Proc.\ Camb.\ Phil.\ Soc.\ \textbf{53}(3), 629--641, 1957.
+    \item \hyperlink{cite:stauffer}{[Stauffer'79]}
+          D.~Stauffer.
+          \emph{Scaling theory of percolation clusters.}
+          Physics Reports \textbf{54}(1), 1--74, 1979.
+    \item \hyperlink{cite:grimmett}{[Grimmett'99]}
+          G.~Grimmett.
+          \emph{Percolation} (2nd ed.).
+          Grundlehren \textbf{321}, Springer, 1999.
+    \item {}[Boucheron, Lugosi \& Massart'13]
+          S.~Boucheron, G.~Lugosi, P.~Massart.
+          \emph{Concentration Inequalities: A Nonasymptotic Theory of Independence.}
+          Oxford Univ.\ Press, 2013.
+    \item {}[van der Vaart'98]
+          A.~W.~van der Vaart.
+          \emph{Asymptotic Statistics.}
+          Cambridge Univ.\ Press, 1998.
+    \item \hyperlink{cite:rogers}{[Rogers'18]}
+          J.~Rogers.
+          \emph{Information Theoretic Minimax Lower Bounds} (lecture notes), 2018.
+          \href{https://jenniferbrennan.github.io/resources/Minimax_Lower_Bound_Notes.pdf}{[pdf]}
+    \item \hyperlink{cite:carpentier}{[Carpentier \& Kim'15]}
+          A.~Carpentier and A.~K.~H.~Kim.
+          \emph{Adaptive and minimax optimal estimation of the tail coefficient.}
+          Statistica Sinica \textbf{25}(3), 1133--1144, 2015.
+    \item {}[Leath'76]
+          P.~L.~Leath.
+          \emph{Cluster size and boundary distribution near percolation threshold.}
+          Phys.\ Rev.\ B \textbf{14}(11), 5046--5055, 1976.
+    \item \hyperlink{cite:malthe}{[Malthe-S\o renssen'24]}
+          A.~Malthe-S\o renssen.
+          \emph{Percolation Theory Using Python.}
+          Springer Nature, 2024.
   \end{itemize}
+\end{frame}
 
-  \vspace{0.8em}
-  \textbf{Code, slides and notes.}\\[0.2em]
-  \quad\url{https://github.com/IgorSSBarbosa/impa-seminar-2026-05-18}
+\begin{frame}{Code, slides and notes}
+  \begin{center}
+    \large\url{https://github.com/IgorSSBarbosa/impa-seminar-2026-05-18}
+  \end{center}
 
-  \vspace{0.4em}
-  \footnotesize Includes: the BFS pool simulator (serial + parallel),
-  every figure in this deck, the $\hat\gamma$ regression code, and
-  the design notes for the Leath-style lazy-growth simulator.
+  \vspace{1em}
+  Includes:
+  \begin{itemize}\setlength{\itemsep}{2pt}
+    \item the BFS pool simulator (serial + parallel) and every figure
+          in this deck;
+    \item the $\hat\gamma$ log--log regression code and all four
+          $m_0$-schedules from \S6;
+    \item the full notes on the upper-bound rate derivation
+          (\texttt{notes/upper\_bound\_rate\_derivation.tex});
+    \item design notes for the Leath-style lazy-growth simulator.
+  \end{itemize}
 \end{frame}
 
 % =====================================================================
