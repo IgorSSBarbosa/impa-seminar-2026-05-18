@@ -4,7 +4,7 @@
 %
 %  Structural skeleton — one frame stub per planned slide.
 %  Every frame currently holds a red \TODO{...} placeholder; content
-%  lands in a later pass once the §-by-§ discussions happen.
+%  lands in a later pass once the Section -by-Section  discussions happen.
 %
 %  Build:  latexmk -pdf talk.tex
 % =====================================================================
@@ -54,7 +54,7 @@
 % Citations are inlined as "[Name'YY]" — the References slide is
 % curated manually, so no biblatex tracking is needed.
 
-\graphicspath{{../images/}}
+\graphicspath{{images/}}
 
 % ---------- footer override -----------------------------------------
 % Slim two-column footer: "log-log plot" on the left, "xx/38" on the
@@ -157,7 +157,7 @@
         \item Main theorem: CLT for $\hat\gamma$
         \item Lower bound and optimality
         \item $m_0$ choices empirically
-        \item Wrap-up
+        \item Future works
       \end{enumerate}
     \end{column}
   \end{columns}
@@ -339,10 +339,10 @@
       
       \vspace{2.4em}
       Heuristic: 
-      \scriptsize
       $$\E V(r) \sim r^{d_f} $$
       $$\;\Rightarrow\;
       \log \E V(r) \approx d_f \log r + \mathrm{const.}$$
+      \scriptsize
       \vspace{0.4em}
       
       Physicists ``read the slope''. But the relation is only
@@ -360,12 +360,12 @@
       % small-$r$ points clearly peel off the line. \textbf{Finite-size
       % effect}: at small $r$ the cluster has not yet developed its
       % asymptotic scaling; boundary/surface corrections dominate.
-      % Formally: the $a_1\, r^{-1}$ correction in the expansion of §3.
+      % Formally: the $a_1\, r^{-1}$ correction in the expansion of Section 3.
 
       \vspace{0.4em}
       \textbf{Remark.} The standard fix is to \textbf{drop the first
       $m_0$ scales} and fit the OLS line on the remaining $m$ points.
-      $m_0$ becomes the main design knob (§7).
+      $m_0$ becomes the main design knob.
     \end{column}
   \end{columns}
 \end{frame}
@@ -398,18 +398,18 @@
 % target: ≈ 8 min
 % =====================================================================
 
-\begin{frame}{The running example, revisited}
-  \begin{center}
-    \includegraphics[width=0.78\linewidth, keepaspectratio]%
-                    {fig_running_example.png}
-  \end{center}
+% \begin{frame}{The running example, revisited}
+%   \begin{center}
+%     \includegraphics[width=0.78\linewidth, keepaspectratio]%
+%                     {fig_running_example.png}
+%   \end{center}
 
-  \TODO{Same image as in §2 --- familiar on purpose. The switch we make
-        \textbf{now} is from a physicist's reading (``looks linear'') to
-        a statistician's reading (``what is the slope, and how
-        uncertain is it?''). From this point on every claim about
-        $d_f$ comes with an error bar.}
-\end{frame}
+%   \TODO{Same image as in Section 2 --- familiar on purpose. The switch we make
+%         \textbf{now} is from a physicist's reading (``looks linear'') to
+%         a statistician's reading (``what is the slope, and how
+%         uncertain is it?''). From this point on every claim about
+%         $d_f$ comes with an error bar.}
+% \end{frame}
 
 \begin{frame}{What physicists measure vs.\ what they want}
   \begin{columns}[t]
@@ -565,7 +565,7 @@
 
   \TODO{The estimator we will define drops the first $m_0$ scales
         (kills bias) and OLS-averages over a window of width $m$
-        (controls variance). The whole point of §6 is: \textbf{how
+        (controls variance). The whole point of Section 6 is: \textbf{how
         should $m_0$ scale with $m$ and with the compute budget?}}
 \end{frame}
 
@@ -573,15 +573,22 @@
 \begin{frame}[plain]
   \vfill
   \begin{center}
-    {\Large\bfseries\color{DarkBlue} From here on: our contribution.}\\[1em]
+    {\Large\bfseries\color{DarkBlue} From here on: our contribution}\\[1em]
     {\large joint with A. Teixeira and R. Imbuzeiro de Oliveira}\\[2em]
     \footnotesize
-    \begin{tabular}{rl}
-      % §4 & the log--log estimator and its three-part split\\
-      §5 & a CLT for $\hat\gamma$ \\
-      §6 & minimax lower bound --- the log--log plot is near-optimal\\
-      §7 & $m_0$ choices empirically\\
-    \end{tabular}
+      \begin{enumerate}\setcounter{enumi}{4}
+        % \item The log--log estimator and its three-part split
+        \item Section 5 --- a CLT for $\hat\gamma$
+        \item Section 6 --- minimax lower bound --- the log--log plot is near-optimal
+        \item Section 7 --- $m_0$ choices empirically
+        % \item Future works
+      \end{enumerate}
+    % \begin{tabular}{rl}
+    %   % Section 4 & the log--log estimator and its three-part split\\
+    %   Section 5 & a CLT for $\hat\gamma$ \\
+    %   Section 6 & minimax lower bound --- the log--log plot is near-optimal\\
+    %   Section 7 & $m_0$ choices empirically\\
+    % \end{tabular}
   \end{center}
   \vfill
 \end{frame}
@@ -616,7 +623,7 @@
         Two free knobs in the estimator:
         $m_0$ --- how many small-$r$ scales to drop (bias control),
         and $m$ --- window width (variance control). Both are tuned
-        in §6.}
+        in Section 6.}
 \end{frame}
 
 \begin{frame}{Linear regression as a linear functional}
@@ -656,7 +663,7 @@
 \end{frame}
 
 \begin{frame}{The three-part split}
-  Apply $\;\sum_k w_{k,m}(\cdot)\;$ to the per-scale identity from §3:
+  Apply $\;\sum_k w_{k,m}(\cdot)\;$ to the per-scale identity:
   \[
     \hat\beta \;=\; \sum_k w_{k,m}\Bigl[
         \underbrace{\log a_0 + k\,\beta}_{\text{signal}}
@@ -664,7 +671,7 @@
         \;+\; \underbrace{\log\overline{\xi}_k}_{\text{random}}
       \Bigr].
   \]
-  Using the weight identity $\sum w = 0$  to kill $\log a_0$ and $\sum k w = 1$
+  Using the weight identity $\sum w = 0$ we kill $\log a_0$ and using $\sum k w = 1$ we
   picks out $\beta$. Hence $\hat\beta - \beta$ retains only the bias
   and random pieces.
 
@@ -686,7 +693,7 @@
         }
   \]
 
-  \TODO{The whole §5 proof is one sentence: control $R$, $S$, $Q$
+  \TODO{The whole Section 5 proof is one sentence: control $R$, $S$, $Q$
         separately. $R$ is deterministic --- killed by $m_0$.
         $S$ goes through Lindeberg--Feller (a CLT). $Q$ vanishes
         faster than the CLT rate on $\mathcal G_k$; the bad event
@@ -730,7 +737,7 @@
 \end{frame}
 
 \begin{frame}{Proof strategy}
-  Recall the three-part split (§4):
+  Recall the three-part split:
 
   \[
   \hat \beta - \beta \; =\;
@@ -798,7 +805,7 @@
 \end{frame}
 
 \begin{frame}{$Q_{n,m}$ Taylor remainder vanishes faster}
-  From §4: on the \textbf{good event}
+  On the \textbf{good event}
   $\mathcal{G}_k = \{\overline{\xi}_k \ge 1/2\}$,
   $\;q(\overline{\xi}_k - 1) = \log(\overline{\xi}_k) - (\overline{\xi}_k - 1)\;$
   satisfies $|q(\overline{\xi}_k-1)| \le (\overline{\xi}_k - 1)^{\,2}$. So
@@ -841,17 +848,17 @@
   % $\sqrt{nm^3}\cdot R(m,m_0) \to 0\;\Longleftrightarrow\;
   % \rho^{-m_0} \ll \sqrt{m/n}$ (equivalently
   % $\rho^{m_0} \gg \sqrt{n/m}$). This is the second growth condition
-  % in the theorem --- and the design knob $m_0$ that drives §6.
+  % in the theorem --- and the design knob $m_0$ that drives Section 6.
 \end{frame}
 
 % =====================================================================
-% \section{The role of $m_0$ and Wilson confidence intervals}    % COMMENTED OUT: all frames were stubs; empirical comparison is now §7
+% \section{The role of $m_0$ and Wilson confidence intervals}    % COMMENTED OUT: all frames were stubs; empirical comparison is now Section 7
 % target: ≈ 7 min
 % =====================================================================
 
-% --- COMMENTED OUT: §6 stubs (no content drafted) ------------------
-% The §8 frame "<|d̂_f - d_f|> vs simulation time" effectively serves
-% as the §6 empirical-comparison slide.
+% --- COMMENTED OUT: Section 6 stubs (no content drafted) ------------------
+% The Section 8 frame "<|d̂_f - d_f|> vs simulation time" effectively serves
+% as the Section 6 empirical-comparison slide.
 % \begin{frame}{Why throw away the first $m_0$ scales}
 %   \TODO{The first scales are the most biased; the OLS weights $w_{k,m}$
 %         give them large lever arms. Dropping them kills the leading
@@ -919,7 +926,7 @@
   \]
 
   \vspace{0.3em}
-  Plug into the §5 bias and variance bounds at $m=2$
+  Plug into the previous bias and variance bounds at $m=2$
   ($R\asymp\rho^{-m_0}$ and $\Var(\hat\gamma)\asymp 1/n$):
   \[
     \E\bigl[(\hat\gamma-\gamma)^{\,2}\bigr]
@@ -945,12 +952,12 @@
     Take $\mathcal{P}$ = distributions $\mathbb{W}=(\mathbb{W}_L)_{L\in\mathbb{N}}$
     with $\bigl|\E\mathbb{W}_L - a_0\, L^{\gamma}\bigr|\le \exp(a_1/L)$
     and $\|\mathbb{W}_L/\E\mathbb{W}_L\|_{2+\delta}<M$. Then for every
-    $\log B \ge 2(d+2)/d$,
+    $\log B \ge 2(d+2)/d$, there is a universal constant $c$ such that
     \[
       \inf_{\hat\gamma}\sup_{\mathbb{W}\in\mathcal{P}}\;
         \E_{\mathbb{W}}\!\bigl[(\hat\gamma - \gamma)^{\,2}\bigr]
       \;\ge\;
-      \frac{(d+2)^{2}}{8}\,\frac{c^{2}\,e^{-a^{2}/2}}{\log^{2}\!B}\;
+      \frac{(d+2)^{2}c}{\log^{2}\!B}\;
           B^{-\,2/(d+2)}.
     \]
   \end{block}
@@ -974,7 +981,7 @@
   $\mathbb{X},\mathbb{Y}\in\mathcal{P}$ whose parameters $\gamma$
   differ by $s$. The minimax risk is lower-bounded by separating
   these two:
-  \begin{block}{Two-point lemma\hfill\normalfont\footnotesize(Rogers [Rogers'18], Thm.~1)}
+  \begin{block}{Two-point lemma\hfill\normalfont\footnotesize([Rogers'18], Thm.~1)}
     \[
       \inf_{\hat\gamma}\sup_{\mathbb{W}\in\mathcal{P}}
         \E_{\mathbb{W}}\bigl[(\hat\gamma - \gamma)^{\,2}\bigr]
@@ -1012,14 +1019,14 @@
   scale $L$, subject to the budget $\sum_L n_L\,L^{\,d}\le B$.
 
   \vspace{0.4em}
-  \textbf{The enemy} (Nature) maximises the KL. Change of variable
+  \textbf{The enemy} maximises the KL. Change of variable
   $M_L = n_L L^{\,d}/B$:
   \[
     \max_{(M_L)}\;\sum_{L\ge L^{\ast}} B\,M_L\,L^{-d}\log^{2}\!L
         \quad\text{s.t.}\quad \sum_L M_L \le 1.
   \]
   Linear in $M_L$ on the simplex $\Rightarrow$ optimum at an extreme point:
-  put all mass on the $L$ that maximises $L^{-d}\log^{2}\!L$. Calculus shows
+  put all mass on the $L$ that maximises $L^{-d}\log^{2}\!L$. Calculus shows that
   this is $L^{\ast}$ as soon as $\log B\ge 2(d+2)/d$.
 
   \vspace{0.4em}
@@ -1071,7 +1078,7 @@
   % $m_0\!=\!\lfloor m/2\rfloor$ (linear),
   % $m_0\!=\!\lceil \tfrac12\log_\rho(nm^3)\rceil$ (CLT-optimal),
   % $m_0\!=\!m-2$ (keep only the two largest scales --- the
-  % high-school slope of §7).
+  % high-school slope of Section 7).
 \end{frame}
 
 % =====================================================================
@@ -1083,7 +1090,7 @@
   \begin{itemize}\setlength{\itemsep}{4pt}
     \item \textbf{Tune the best regime} in models with a
           \emph{known} critical exponent (the fractal dimension
-          $d_f$ of §7 is our calibration target; do the same for the
+          $d_f$ is our calibration target; do the same for the
           mean-cluster-size exponent $\gamma$, the percolation
           probability exponent $\beta$, \ldots).
     \item \textbf{Apply to models with unknown exponents.}
@@ -1167,17 +1174,17 @@
     \large\url{https://github.com/IgorSSBarbosa/impa-seminar-2026-05-18}
   \end{center}
 
-  \vspace{1em}
-  Includes:
-  \begin{itemize}\setlength{\itemsep}{2pt}
-    \item the BFS pool simulator (serial + parallel) and every figure
-          in this deck;
-    \item the $\hat\gamma$ log--log regression code and all four
-          $m_0$-schedules from \S6;
-    \item the full notes on the upper-bound rate derivation
-          (\texttt{notes/upper\_bound\_rate\_derivation.tex});
-    \item design notes for the Leath-style lazy-growth simulator.
-  \end{itemize}
+  % \vspace{1em}
+  % Includes:
+  % \begin{itemize}\setlength{\itemsep}{2pt}
+  %   \item the BFS pool simulator (serial + parallel) and every figure
+  %         in this deck;
+  %   \item the $\hat\gamma$ log--log regression code and all four
+  %         $m_0$-schedules from \S6;
+  %   \item the full notes on the upper-bound rate derivation
+  %         (\texttt{notes/upper\_bound\_rate\_derivation.tex});
+  %   \item design notes to implement the Leath-style lazy-growth simulator.
+  % \end{itemize}
 \end{frame}
 
 % =====================================================================
