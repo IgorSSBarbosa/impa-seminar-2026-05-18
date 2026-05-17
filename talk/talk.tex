@@ -556,7 +556,7 @@
   \vspace{0.4em}
   \begin{center}
     \footnotesize\itshape
-    The bias--variance picture above is folklore in the physics
+    The bias--variance picture above is a commom knowledge in the physics
     literature; the \textbf{compute-budget formalisation} that pins
     $(m_0, m, n)$ against a single resource constraint $B$ is, to our
     knowledge, new.
@@ -576,7 +576,7 @@
     {\large joint with A. Teixeira and R. Imbuzeiro de Oliveira}\\[2em]
     \footnotesize
     \begin{tabular}{rl}
-      §4 & the log--log estimator and its three-part split\\
+      % §4 & the log--log estimator and its three-part split\\
       §5 & a CLT for $\hat\gamma$ \\
       §6 & the role of $m_0$ and Wilson confidence intervals\\
       §7 & minimax lower bound --- the log--log plot is near-optimal\\
@@ -663,7 +663,7 @@
         \;+\; \underbrace{\log\overline{\xi}_k}_{\text{random}}
       \Bigr].
   \]
-  Weight identities: $\sum w = 0$ kills $\log a_0$; $\sum k w = 1$
+  Using the weight identity $\sum w = 0$  to kill $\log a_0$ and $\sum k w = 1$
   picks out $\beta$. Hence $\hat\beta - \beta$ retains only the bias
   and random pieces.
 
@@ -699,10 +699,10 @@
 
 \begin{frame}{Main theorem}
   Consider $\hat\gamma$ the log--log plot estimator for the critical
-  exponent $\gamma$.
+  exponent $\gamma$ and an observable $Y_i$ satisfying the following assumptions.
 
   \vspace{0.3em}
-  \textbf{Assumptions on the model} (with $\xi_i := Y_i / \E Y_i$):
+  \textbf{Assumptions} (with $\xi_i := Y_i / \E Y_i$):
   \begin{itemize}
     \item[(A0)] $Y_i > 0$.
     \item[(A1)] $\E Y_i = a_0\, i^{\gamma}
@@ -717,7 +717,7 @@
   \vspace{0.3em}
   \begin{block}{Theorem (Barbosa--Teixeira--Oliveira, 2026\textsuperscript{+})}
     Under (A0)--(A3), if $n, m, m_0 \to \infty$ along any sequence
-    satisfying $m/n \to 0$ and $\rho^{-m_0} \ll \sqrt{m/n}$, then
+    satisfying $m/n \to 0$, then
     \[
       \sqrt{n\, m^{\,3}}\,\bigl(\hat\gamma - \gamma\bigr)
         \;\xrightarrow{\,d\,}\;
@@ -746,7 +746,7 @@
         \;+\;
         \underbrace{S_{n,m}}_{\text{linear stochastic}}
         \;+\;
-        \underbrace{Q_{n,m}}_{\text{quadratic remainder}}\, .
+        \underbrace{Q_{n,m}.}_{\text{quadratic remainder}}\, 
   \]
 
   where $S_{n,m} = \sum_k w_{k,m}(\overline{\xi}_k - 1) $ and $Q_{n,m} = \sum_k w_{k,m} q(\overline{\xi}_k - 1)$
@@ -797,7 +797,7 @@
 
 \begin{frame}{$Q_{n,m}$ Taylor remainder vanishes faster}
   From §4: on the \textbf{good event}
-  $\mathcal{G}_k = \{|\overline{\xi}_k - 1| \le 1/2\}$,
+  $\mathcal{G}_k = \{\overline{\xi}_k \ge 1/2\}$,
   $\;q(\overline{\xi}_k - 1) = \log(\overline{\xi}_k) - (\overline{\xi}_k - 1)\;$
   satisfies $|q(\overline{\xi}_k-1)| \le (\overline{\xi}_k - 1)^{\,2}$. So
   \[
@@ -827,7 +827,7 @@
 
   \vspace{0.4em}
   Under reasonable assumptions both correction terms decay
-  \textbf{geometrically} in $k$, and $\sum_k |w_{k,m}| \asymp 1/m$.
+  \textbf{geometrically} in $k$, and $\max_k |w_{k,m}| \asymp 1/m^2$.
   The leading $\rho^{-k}$ term, summed against the symmetric weights,
   gives
   \[
@@ -897,32 +897,42 @@
   \]
 
   \vspace{0.3em}
-  \textbf{A CLT-admissible schedule.} Heuristically (balance the
-  two surviving error terms and saturate the budget):
+  \textbf{Take the two-point slope $(m=2)$.} The smallest legal
+  regression window --- just two scales, the slope is the high-school
+  formula
   \[
-    m_0(B) \;=\; \Bigl\lfloor\tfrac{1}{d+2}\,\log_\rho\! B \Bigr\rfloor,\quad
-    m(B)  \;=\; \lceil \log_\rho\!\log B \rceil,\quad
-    n(B)  \;=\; \bigl\lfloor B\,/\,\rho^{(m_0+m)\,d}\bigr\rfloor.
+    \hat\gamma
+    \;=\;
+    \frac{\log\bar Y_{\rho^{m_0+2}} - \log\bar Y_{\rho^{m_0+1}}}{\log\rho},
   \]
-  One checks $m/n \to 0$ and $\rho^{-m_0}\!\ll\!\sqrt{m/n}$, so both
-  hypotheses of the CLT (§5) hold.
+  \emph{no OLS machinery needed.} Balance bias against variance,
+  saturate the budget:
+  \[
+    m_0(B) \;=\; \Bigl\lfloor\tfrac{1}{d+2}\,\log_\rho\! B \Bigr\rfloor,
+    \qquad
+    n(B)   \;=\; \bigl\lfloor B\,/\,\rho^{(m_0+2)\,d}\bigr\rfloor.
+  \]
 
   \vspace{0.3em}
-  Plug into the two surviving terms from §5
-  ($R\asymp\rho^{-m_0}/m^{2}$ and $\Var(\hat\gamma)\asymp 1/(n m^{3})$):
+  Plug into the §5 bias and variance bounds at $m=2$
+  ($R\asymp\rho^{-m_0}$ and $\Var(\hat\gamma)\asymp 1/n$):
   \[
     \E\bigl[(\hat\gamma-\gamma)^{\,2}\bigr]
     \;\le\;
-    \underbrace{\rho^{-2m_0}/m^{4}}_{\text{bias}^2}
+    \underbrace{C_R\,\rho^{-2m_0}}_{\text{bias}^2}
     \;+\;
-    \underbrace{C/(n m^{3})}_{\text{variance}}
+    \underbrace{C_S/n}_{\text{variance}}
     \;\le\;
-    C'\,B^{-\,2/(d+2)}\,(\log\log B)^{c}.
+    C\,B^{-\,2/(d+2)}.
   \]
 
   \vspace{0.3em}
   \textbf{Question.} Is the exponent $2/(d+2)$ \emph{sharp}, or could
   a cleverer estimator do polynomially better?
+
+  \vspace{0.2em}
+  \footnotesize Details + general constant-$m$ analysis:
+  \texttt{notes/upper\_bound\_rate\_derivation.tex}.
 \end{frame}
 
 \begin{frame}{Answer: $\boldsymbol{B^{-2/(d+2)}}$ is sharp (up to logs)}
@@ -1034,34 +1044,37 @@
 % target: ≈ 2 min
 % =====================================================================
 
-\begin{frame}{Take-aways}
-  \begin{enumerate}
-    \item \textbf{The physicists' log--log plot has a rigorous
-          statistical theory.} A CLT for $\hat\gamma$ with explicit
-          rate $\sqrt{n m^{\,3}}$ and limiting variance
-          $12\sigma_\infty^{\,2}/\log^{\,2}\!\rho$ --- assumptions
-          (A0)--(A3) on the model, joint scaling
-          $\rho^{-m_0}\!\ll\!\sqrt{m/n}$ on the regression design.
-    \item \textbf{Three explicit error terms, three different rates.}
-          Deterministic bias $R$ ($\rho^{-m_0}/m^{2}$), linear stochastic $S$
-          (Gaussian at $1/\sqrt{n m^{\,3}}$), Taylor remainder $Q$
-          ($1/(nm)$). They each have their own knob --- $m_0$
-          balances them.
-    \item \textbf{$m_0$ is the practical lever.} Empirically (§6),
-          $m_0 \asymp \tfrac{1}{2}\log_\rho(n m^{\,3})$ gives the
-          best bias--variance trade-off; $m_0 = \lfloor m/2\rfloor$
-          is a robust default; $m_0 = 1$ leaves the leading bias
-          on the table.
-    \item \textbf{Near-minimax.} On the same budget $B = n\,\rho^{(m_0+m)d}$
-          the achieved RMSE rate $B^{-1/(d+2)}$ matches the minimax
-          lower bound up to a $\log B$ factor: no estimator can beat
-          the log--log plot polynomially in the budget $B$.
-  \end{enumerate}
-
-  \vspace{0.4em}
-  \textbf{Practical recipe.} Pick $m\asymp\log_\rho B$, $m_0$ as above,
-  spend the remaining budget on replicas $n$; read off
-  $\hat\gamma$ and its Wilson interval.
+\begin{frame}{Future work}
+  \begin{itemize}\setlength{\itemsep}{4pt}
+    \item \textbf{Tune the best regime} in models with a
+          \emph{known} critical exponent (the fractal dimension
+          $d_f$ of §6 is our calibration target; do the same for the
+          mean-cluster-size exponent $\gamma$, the percolation
+          probability exponent $\beta$, \ldots).
+    \item \textbf{Apply to models with unknown exponents.}
+          Percolation in $d \ge 3$, random walks in random
+          environment, polymers, interacting particle systems near
+          their critical points --- anywhere a log--log plot is
+          currently read by eye.
+    \item \textbf{Faster simulators.} Leath-style lazy BFS (notes:
+          \texttt{leath\_simulator\_plan.md}), GPU-parallel cluster
+          generation. Lowering the cost exponent $d$ directly
+          improves the achievable rate $B^{-2/(d+2)}$.
+    \item \textbf{Hypothesis test: ``a critical exponent exists''.}
+          In the spirit of Clauset--Shalizi--Newman power-law tests
+          for heavy-tailed data, build a goodness-of-fit procedure
+          that rejects the power-law null when the log--log plot is
+          incompatible with $\E Y_i \sim a_0\,i^{\gamma}$.
+    \item \textbf{Negative critical exponents.} $\gamma < 0$:
+          $\E Y_i \to 0$, the $1/\log\bar Y$ and good-event/bad-event
+          machinery change. Identify the corresponding moment
+          assumptions and adapt the CLT.
+    \item \textbf{Off-critical exponents.} Treat
+          $\chi(p)\sim|p-p_c|^{-\gamma}$ and the $\beta$ family:
+          the regression variable is now $|p-p_c|$, not a length
+          scale; budget allocates over a grid of $p$ values rather
+          than scales.
+  \end{itemize}
 \end{frame}
 
 \begin{frame}[plain]
