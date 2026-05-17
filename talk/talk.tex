@@ -652,7 +652,7 @@
   \end{itemize}
 
   \vspace{0.3em}
-  \begin{block}{Theorem (Barbosa--Teixeira--Imbuzeiro de Oliveira, 2026\textsuperscript{+})}
+  \begin{block}{Theorem (Barbosa--Teixeira--Oliveira, 2026\textsuperscript{+})}
     Under (A0)--(A3), if $n, m, m_0 \to \infty$ along any sequence
     satisfying $m/n \to 0$ and $\rho^{-m_0} \ll \sqrt{m/n}$, then
     \[
@@ -814,36 +814,65 @@
 % target: ≈ 4 min
 % =====================================================================
 
-\begin{frame}{Question: can any estimator beat $B^{-J/(d+2J)}$?}
-  We just showed the log--log plot estimator (with Richardson
-  extrapolation under a $J$-order expansion) attains
+\begin{frame}{What rate does the log--log plot achieve?}
+  \textbf{Cost model.} A single trial at scale $L=\rho^{k}$ costs
+  $\asymp L^{\,d}$ operations, where $d$ is the per-trial cost
+  exponent of the simulator (e.g.\ $d=2$ for arena BFS in §6).
+  With $n$ replicas, the \emph{simulation budget} is
   \[
-    \E\bigl[(\hat\gamma - \gamma)^{\,2}\bigr]
-      \;\asymp\; B^{-2J/(d + 2J)}.
+    B \;=\; n\,\rho^{\,(m_0+m)\,d}.
   \]
-  Here $d$ is the spatial dimension and $J$ the order of the
-  finite-size expansion of $\E Y_L$ around its leading term.
 
-  \vspace{0.6em}
-  \textbf{Question.} Is this rate the best any estimator can do, or
-  could a cleverer procedure squeeze more out of the same budget $B$?
+  \vspace{0.3em}
+  \textbf{A CLT-admissible schedule.} Heuristically (balance the
+  two surviving error terms and saturate the budget):
+  \[
+    m_0(B) \;=\; \Bigl\lfloor\tfrac{1}{d+2}\,\log_\rho\! B \Bigr\rfloor,\quad
+    m(B)  \;=\; \lceil \log_\rho\!\log B \rceil,\quad
+    n(B)  \;=\; \bigl\lfloor B\,/\,\rho^{(m_0+m)\,d}\bigr\rfloor.
+  \]
+  One checks $m/n \to 0$ and $\rho^{-m_0}\!\ll\!\sqrt{m/n}$, so both
+  hypotheses of the CLT (§5) hold.
 
-  \vspace{0.6em}
-  \textbf{Answer.} No --- the rate is sharp up to a $\log^2 B$ factor.
+  \vspace{0.3em}
+  Plug into the two surviving terms from §5
+  ($R\asymp\rho^{-m_0}/m^{2}$ and $\Var(\hat\gamma)\asymp 1/(n m^{3})$):
+  \[
+    \E\bigl[(\hat\gamma-\gamma)^{\,2}\bigr]
+    \;\le\;
+    \underbrace{\rho^{-2m_0}/m^{4}}_{\text{bias}^2}
+    \;+\;
+    \underbrace{C/(n m^{3})}_{\text{variance}}
+    \;\le\;
+    C'\,B^{-\,2/(d+2)}\,(\log\log B)^{c}.
+  \]
 
-  \vspace{0.4em}
+  \vspace{0.3em}
+  \textbf{Question.} Is the exponent $2/(d+2)$ \emph{sharp}, or could
+  a cleverer estimator do polynomially better?
+\end{frame}
+
+\begin{frame}{Answer: $\boldsymbol{B^{-2/(d+2)}}$ is sharp (up to logs)}
   \begin{block}{Theorem (minimax lower bound)}
-    For every $J \ge 1$, every $d \ge 1$, and every $\log B \ge 2(d+2J)/d$,
+    Take $\mathcal{P}$ = distributions $\mathbb{W}=(\mathbb{W}_L)_{L\in\mathbb{N}}$
+    with $\bigl|\E\mathbb{W}_L - a_0\, L^{\gamma}\bigr|\le \exp(a_1/L)$
+    and $\|\mathbb{W}_L/\E\mathbb{W}_L\|_{2+\delta}<M$. Then for every
+    $\log B \ge 2(d+2)/d$,
     \[
-      \inf_{\hat\gamma}\;\sup_{\mathbb{W}\in\mathcal{P}_J}\;
-        \E_{\mathbb{W}}\bigl[(\hat\gamma - \gamma)^{\,2}\bigr]
+      \inf_{\hat\gamma}\sup_{\mathbb{W}\in\mathcal{P}}\;
+        \E_{\mathbb{W}}\!\bigl[(\hat\gamma - \gamma)^{\,2}\bigr]
       \;\ge\;
-      \frac{(d+2J)^{2}}{8}\,\frac{c^{2}\,e^{-a^{2}/2}}{\log^{2}\!B}\;
-          B^{-\,2J/(d+2J)}.
+      \frac{(d+2)^{2}}{8}\,\frac{c^{2}\,e^{-a^{2}/2}}{\log^{2}\!B}\;
+          B^{-\,2/(d+2)}.
     \]
   \end{block}
 
-  \vspace{0.3em}
+  \vspace{0.4em}
+  Combined with the previous slide: the log--log plot is
+  \textbf{minimax-rate-optimal up to a $\log^{\,2}\!B$ factor} ---
+  no estimator can do polynomially better.
+
+  \vspace{0.4em}
   \footnotesize Closely related: Carpentier \& Kim
   \cite{carpentierKim2015tail} prove the analogous rate for the
   tail coefficient of \emph{second-order Pareto} distributions, with
@@ -851,12 +880,12 @@
 \end{frame}
 
 \begin{frame}{Proof idea --- two-point reduction}
-  Pick \emph{two} candidate models $\mathbb{X},\mathbb{Y}\in\mathcal{P}_J$
+  Pick \emph{two} candidate models $\mathbb{X},\mathbb{Y}\in\mathcal{P}$
   whose parameters $\gamma$ differ by $s$. The minimax risk
   is lower-bounded by separating these two:
   \begin{block}{Two-point lemma (adapted from \cite{minimax_lowerBoundsJennifer})}
     \[
-      \inf_{\hat\gamma}\sup_{\mathbb{W}\in\mathcal{P}_J}
+      \inf_{\hat\gamma}\sup_{\mathbb{W}\in\mathcal{P}}
         \E_{\mathbb{W}}\bigl[(\hat\gamma - \gamma)^{\,2}\bigr]
       \;\ge\; \tfrac{1}{4}\,s^{2}\,\exp\bigl(-\mathrm{KL}(\mathbb{X}\,\|\,\mathbb{Y})\bigr).
     \]
@@ -871,13 +900,14 @@
                     e^{Z + \lambda_L} & L \ge L^{\ast}, \end{cases}
         \qquad Z\sim\mathcal{N}(0,1).
   \]
-  \quad with $L^{\ast}=B^{1/(d+2J)}$,
+  \quad with $L^{\ast}=B^{1/(d+2)}$,
   $\lambda_L = \gamma \log L$,
-  $\gamma = \log\!\bigl(1-(L^{\ast})^{-J}\bigr)\big/\log(1/L^{\ast})$.
+  $\gamma = \log\!\bigl(1-1/L^{\ast}\bigr)\big/\log(1/L^{\ast})$.
 
   \vspace{0.4em}
-  Direct check: $\mathbb{Y}$ stays inside $\mathcal{P}_J$ (the $J$-order
-  expansion holds), and $\E X_L = 1$, $\E Y_L = L^{\gamma}\!\cdot\!\mathbbm{1}_{\{L\ge L^{\ast}\}}+\mathbbm{1}_{\{L<L^{\ast}\}}$.
+  Direct check: $\mathbb{Y}$ stays inside $\mathcal{P}$ (the leading
+  expansion holds at order $L^{-1}$), $\E X_L = 1$, and
+  $\E Y_L = L^{\gamma}\!\cdot\!\mathbbm{1}_{\{L\ge L^{\ast}\}}+\mathbbm{1}_{\{L<L^{\ast}\}}$.
 \end{frame}
 
 \begin{frame}{Proof idea --- the ``enemy'' picks the worst budget split}
@@ -898,41 +928,13 @@
   \]
   Linear in $M_L$ on the simplex $\Rightarrow$ optimum at an extreme point:
   put all mass on the $L$ that maximises $L^{-d}\log^{2}\!L$. Calculus shows
-  this is $L^{\ast}$ as soon as $\log B\ge 2(d+2J)/d$.
+  this is $L^{\ast}$ as soon as $\log B\ge 2(d+2)/d$.
 
   \vspace{0.4em}
-  Substituting $L^{\ast}=B^{1/(d+2J)}$ and bounding
+  Substituting $L^{\ast}=B^{1/(d+2)}$ and bounding
   $\log^{2}(1-x)\le a^{2}x^{2}$ gives $\mathrm{KL}\le a^{2}/2$, a
   \emph{constant}. The $s^{2}\!\cdot\! e^{-\mathrm{KL}}$ in the two-point
   lemma then yields the announced rate.
-\end{frame}
-
-\begin{frame}{Upper meets lower --- the log--log plot is near-minimax}
-  Our CLT (§5) gives the upper bound
-  $\E[(\hat\gamma-\gamma)^{\,2}]\asymp 1/(nm^{\,3})$. Plugging the
-  CLT-optimal schedule $m\asymp\log_\rho B$, $n\asymp B/m^{\,c}$
-  (with Richardson extrapolation to push the bias to order $J$):
-  \[
-    \E[(\hat\gamma-\gamma)^{\,2}]_{\,\text{upper}}
-      \;\asymp\; B^{-\,2J/(d+2J)}\quad\text{(no $\log$).}
-  \]
-
-  \vspace{0.4em}
-  Comparing with the lower bound:
-  \[
-    \boxed{\;
-      \underbrace{\tfrac{c'}{\log^{\,2}\!B}\,B^{-\,2J/(d+2J)}}_{\text{lower}}
-      \;\le\;
-      \inf_{\hat\gamma}\sup_{\mathcal{P}_J} \E[(\hat\gamma-\gamma)^{\,2}]
-      \;\le\;
-      \underbrace{C\,B^{-\,2J/(d+2J)}}_{\text{upper (log--log plot)}}
-      \;}
-  \]
-
-  \vspace{0.4em}
-  Gap: a $\log^{2}\!B$ factor. So the venerable physicists' log--log
-  plot is \textbf{minimax-rate-optimal up to logs} --- no fancier
-  estimator can do polynomially better.
 \end{frame}
 
 % =====================================================================
@@ -973,10 +975,10 @@
           best bias--variance trade-off; $m_0 = \lfloor m/2\rfloor$
           is a robust default; $m_0 = 1$ leaves the leading bias
           on the table.
-    \item \textbf{Near-minimax.} The achieved rate
-          $B^{-J/(d+2J)}$ matches the minimax lower bound up to a
-          $\log B$ factor: under a $J$-order expansion no estimator
-          can beat the log--log plot polynomially in the budget $B$.
+    \item \textbf{Near-minimax.} On the same budget $B = n\,\rho^{(m_0+m)d}$
+          the achieved RMSE rate $B^{-1/(d+2)}$ matches the minimax
+          lower bound up to a $\log B$ factor: no estimator can beat
+          the log--log plot polynomially in the budget $B$.
   \end{enumerate}
 
   \vspace{0.4em}
