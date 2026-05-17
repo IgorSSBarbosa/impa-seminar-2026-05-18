@@ -18,13 +18,16 @@ import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 
+import sys
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))  # so `from lib.*` works
+
 from lib.stats import DF_THEORY, loglog_fit
 from lib.plotting import (
     REGIME_COLORS, REGIME_LATEX, apply_grid, footer, pool_footer_text,
 )
 
-HERE = Path(__file__).resolve().parent           # presentation/coding
-ROOT = HERE.parent                                # presentation/
+HERE = Path(__file__).resolve().parent           # presentation/coding/analysis
+ROOT = HERE.parent.parent                         # presentation/
 DATA_DIR = ROOT / "simulation_data"
 IMG_DIR  = ROOT / "images"
 CSV  = DATA_DIR / "regime_sweep.csv"

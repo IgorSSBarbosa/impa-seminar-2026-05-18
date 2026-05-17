@@ -26,11 +26,14 @@ import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 
+import sys
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))  # so `from lib.*` works
+
 from lib.stats import DF_THEORY, ols_slope
 from lib.plotting import apply_grid, footer, pool_footer_text
 
-HERE = Path(__file__).resolve().parent           # presentation/coding
-ROOT = HERE.parent                                # presentation/
+HERE = Path(__file__).resolve().parent           # presentation/coding/analysis
+ROOT = HERE.parent.parent                         # presentation/
 DATA_DIR = ROOT / "simulation_data"
 IMG_DIR  = ROOT / "images"
 POOL = DATA_DIR / "fractal_dim_pool.npz"

@@ -24,10 +24,13 @@ from pathlib import Path
 
 import numpy as np
 
+import sys
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))  # so `from lib.*` works
+
 from lib.stats import DF_THEORY, loglog_fit, ols_slope
 
-HERE = Path(__file__).resolve().parent
-ROOT = HERE.parent
+HERE = Path(__file__).resolve().parent          # presentation/coding/analysis
+ROOT = HERE.parent.parent                       # presentation/
 DATA = ROOT / "simulation_data"
 
 POOL_NPZ = DATA / "fractal_dim_pool.npz"

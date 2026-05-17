@@ -30,8 +30,8 @@ import numpy as np
 import numba
 
 
-HERE = Path(__file__).resolve().parent
-ROOT = HERE.parent
+HERE = Path(__file__).resolve().parent           # presentation/coding/benchmarks
+ROOT = HERE.parent.parent                         # presentation/
 DATA_DIR = ROOT / "simulation_data"
 DATA_DIR.mkdir(parents=True, exist_ok=True)
 

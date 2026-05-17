@@ -1,10 +1,11 @@
 # ── Reproducible artifacts ─────────────────────────────────────────────────
 # Everything below is regenerable from the source scripts at a fixed seed +
-# config; no need to version-control it. See coding/run_overnight.sh for
-# the canonical reproduction recipe.
+# config; no need to version-control it. See coding/scripts/run_overnight.sh
+# for the canonical reproduction recipe.
 
 # Generated figures and animations
 images/
+coding/mean_field/percolation_animations/
 
 # Generated simulation data (CSVs, NPZ pools, sidecar JSON metadata)
 simulation_data/

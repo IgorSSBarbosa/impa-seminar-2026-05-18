@@ -1,0 +1,137 @@
+# Log–log plot: Estimating Critical Exponents
+
+Code, slides and notes for the IMPA Statistics & AI seminar on
+**2026-05-18**.
+
+The talk gives a statistical reading of the standard physicist trick:
+*estimate a critical exponent by fitting a straight line through a log–log
+plot of cluster sizes.* Concretely, for 2D site percolation at the
+critical point $p_c = 0.592\,746$ on the square lattice, the typical
+volume of the cluster reachable within $L^\infty$-radius $r$ scales as
+
+$$
+V(r) \;\sim\; a_0\,r^{d_f}, \qquad d_f = 91/48 \approx 1.8958,
+$$
+
+so $\log V(r)$ vs $\log r$ should look like a straight line of slope
+$d_f$. We turn that picture into a precise statistical estimator
+$\hat d_f$ — an OLS slope on a window of $m$ log-scales — and study its
+bias / variance / CLT / minimax rate.
+
+This repo contains:
+
+| folder | purpose |
+| --- | --- |
+| `talk/` | The Beamer slides (`talk.tex`) + `refs.bib`. |
+| `coding/` | All Python — simulators, analysis scripts, demos, library code. See [`coding/README.md`](coding/README.md). |
+| `notes/` | Design notes / planning docs (LaTeX derivations, simulator plan, etc.). |
+| `images/` | Generated figures and animations (gitignored — regenerable from `coding/`). |
+| `simulation_data/` | Generated NPZ pools / CSVs (gitignored — regenerable from `coding/`). |
+
+## Quick start
+
+### 1. Install dependencies
+
+```bash
+python3 -m pip install numpy scipy numba matplotlib pillow
+```
+
+(MP4 export for `perc_animate_merged.py` additionally needs `ffmpeg` on
+`PATH`; GIF export uses Pillow and works out of the box.)
+
+### 2. Run the three flagship demos
+
+```bash
+# Interactive percolation explorer (Matplotlib GUI; slider over p)
+python3 coding/demos/perc_interactive.py
+
+# Side-by-side hex / square / triangular animation across grid sizes
+python3 coding/demos/perc_animate_merged.py
+
+# Mean-field demonstration in dimensions 2..8 (zoom-out + rotating camera)
+python3 coding/mean_field/main.py
+```
+
+Each script accepts `-h/--help`. Defaults are tuned to produce the
+exact figures that appear in the talk.
+
+### 3. Build a log–log plot from scratch
+
+The smallest self-contained example uses the helpers in `coding/lib/`:
+
+```python
+# in any script under coding/
+from lib.stats import loglog_fit  # OLS on log(y) vs log(x)
+
+scales = [4, 8, 16, 32, 64, 128, 256]
+# V[k] = cluster volume up to L∞-radius scales[k], averaged over n trials
+V = simulate_my_volumes(scales, n=1024)
+
+slope, intercept = loglog_fit(scales, V)
+print(f"hat d_f = {slope:.4f}    a_0 = {np.exp(intercept):.4f}")
+```
+
+For the full pipeline that produced the §7–§8 plots in the talk:
+
+```bash
+# Heavy step — generates a 65 536-trial pool (~1 h on 12 cores).
+# Output: simulation_data/fractal_dim_pool.{npz,meta.json}
+bash coding/scripts/run_overnight.sh
+
+# Lightweight: re-render the §7 / §8 plots from the existing pool.
+python3 coding/analysis/masterpiece_plot.py     # RMSE vs budget
+python3 coding/analysis/mae_vs_time_plot.py     # <|d̂_f - d_f|> vs wall-time
+python3 coding/analysis/regime_sweep.py         # bias / std curves per regime
+python3 coding/analysis/error_vs_time.py        # |bias| vs time-per-replica
+```
+
+## Pipeline
+
+```
+              simulators/                          analysis/
+              -----------                          ---------
+    seed ─►  fractal_dim_pool_sim_par.py  ─►  regime_sweep.py     ─┐
+             (parallel BFS, writes a pool       error_vs_time.py    ├─►  images/
+              NPZ + meta JSON to                masterpiece_plot.py │     fig_*.png
+              simulation_data/)                  mae_vs_time_plot.py│
+                                                 scale_of_scales.py ┘
+
+                                                 verify_error_vs_time.py  (sanity)
+                                                 plot_fractal_dim.py      (universality)
+
+    benchmarks/bench_l0.py        — kernel benchmark for L0 BFS
+    demos/perc_interactive.py     — Matplotlib slider over p
+    demos/perc_animate_merged.py  — three-lattice synchronised animation
+    mean_field/main.py            — d=2..8 cluster animation (independent module)
+```
+
+Shared utilities live in `coding/lib/` (`stats.py` for OLS, `plotting.py`
+for palette / footers / grid). Anything in `analysis/` and `benchmarks/`
+inserts `coding/` into `sys.path` automatically so `from lib.X import Y`
+works regardless of the caller's CWD.
+
+## How to use the talk slides
+
+```bash
+cd talk
+latexmk -pdf talk.tex     # or open in Overleaf — both `talk.tex` and
+                          # `refs.bib` are self-contained
+```
+
+Cross-references and bibliography hyperlinks resolve on the second
+`latexmk` pass.
+
+## Reproducibility
+
+All randomised steps take a `--seed` argument and write that seed into
+the output's `*.meta.json` sidecar. The canonical pool for the talk was
+generated by `coding/scripts/run_overnight.sh` with seed `20260518`.
+
+Generated artifacts under `images/` and `simulation_data/` are
+gitignored — see [`.gitignore`](.gitignore). To reproduce them from a
+clean clone, run `coding/scripts/run_overnight.sh`.
+
+## License / citing
+
+Code and slides released under MIT. If you use them, please cite the
+repo via the entry in [`talk/refs.bib`](talk/refs.bib) (`barbosa2026repo`).
